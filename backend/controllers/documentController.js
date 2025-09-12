@@ -3,16 +3,6 @@ const Document = require("../models/Document");
 const User = require("../models/User");
 const Court = require("../models/Court");
 
-const downloadTemplate = (req, res) => {
-  const filePath = path.join(__dirname, "../templates", "invoice.docx");
-  res.download(filePath, "invoice.docx", (err) => {
-    if (err) {
-      console.error("Error sending file:", err);
-      res.status(500).send("Error downloading template");
-    }
-  });
-};
-
 const createDocument = async (req, res) => {
   try {
     const { title, description, createdBy } = req.body;
@@ -35,7 +25,7 @@ const createDocument = async (req, res) => {
     await doc.save();
     res.status(201).json(doc);
   } catch (err) {
-    console.error("Error creating document:", err);
+    console.error("error creating document:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -49,7 +39,7 @@ const getAllDocuments = async (req, res) => {
       .populate("signedBy", "email");
     res.json(docs);
   } catch (err) {
-    console.error("Error fetching documents:", err);
+    console.error("error fetching documents:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -64,7 +54,7 @@ const getDocumentById = async (req, res) => {
     if (!doc) return res.status(404).json({ message: "Document not found" });
     res.json(doc);
   } catch (err) {
-    console.error("Error fetching document:", err);
+    console.error("error fetching document:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -72,13 +62,13 @@ const signDocument = async (req, res) => {
   try {
     const { officerId } = req.body;
     const doc = await Document.findById(req.params.id);
-    if (!doc) return res.status(404).json({ message: "Document not found" });
+    if (!doc) return res.status(404).json({ message: "document not found" });
 
     doc.status = "pending-signature";
     doc.assignedOfficer = officerId; 
     await doc.save();
 
-    res.json({ message: "Document sent for signature", doc });
+    res.json({ message: "document sent for signature", doc });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -88,10 +78,10 @@ const signDocument = async (req, res) => {
 const removeDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
-    if (!doc) return res.status(404).json({ message: "Document not found" });
+    if (!doc) return res.status(404).json({ message: "document not found" });
 
     await doc.deleteOne();
-    res.json({ message: "Document removed successfully" });
+    res.json({ message: "document removed " });
   } catch (err) {
     console.error("Error removing document:", err);
     res.status(500).json({ message: err.message });
@@ -102,15 +92,15 @@ const removeDocument = async (req, res) => {
 const rejectDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
-    if (!doc) return res.status(404).json({ message: "Document not found" });
+    if (!doc) return res.status(404).json({ message: "document not found" });
 
     doc.status = "rejected";
     doc.rejectedDocuments += 1;
     await doc.save();
 
-    res.json({ message: "Document rejected", doc });
+    res.json({ message: "document rejected", doc });
   } catch (err) {
-    console.error("Error rejecting document:", err);
+    console.error("error rejecting document:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -120,7 +110,7 @@ const saveTemplateData = async (req, res) => {
     const { documentId, templates } = req.body;
 
     const doc = await Document.findById(documentId);
-    if (!doc) return res.status(404).json({ message: "Document not found" });
+    if (!doc) return res.status(404).json({ message: "document not found" });
 
      doc.templates = templates; 
     await doc.save();
@@ -140,11 +130,11 @@ const getAllOfficers = async (req, res) => {
       .populate("signedBy", "name email");
 
     if (!doc) {
-      return res.status(404).json({ message: "Document not found" });
+      return res.status(404).json({ message: "document not found" });
     }
 
     if (!doc.court) {
-      return res.status(400).json({ message: "This document has no court assigned" });
+      return res.status(400).json({ message: "this document has no court assigned" });
     }
 
     const officers = await User.find({ role: "officer", court: doc.court })
@@ -152,7 +142,7 @@ const getAllOfficers = async (req, res) => {
 
     res.json(officers);
   } catch (err) {
-    console.error("Error fetching officers:", err);
+    console.error("error fetching officers:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -160,7 +150,6 @@ const getAllOfficers = async (req, res) => {
 
 module.exports = {
   saveTemplateData,
-  downloadTemplate,
   createDocument,
   getAllDocuments,
   getDocumentById,

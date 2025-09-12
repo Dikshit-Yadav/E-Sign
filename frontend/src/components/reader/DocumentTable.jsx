@@ -16,20 +16,6 @@ const DocumentTable = () => {
   const [officers, setOfficers] = useState([]);
   const [officerDropdown, setOfficerDropdown] = useState(null);
 
-  // const sendForSignature = (docId) => {
-  //   fetch(`http://localhost:4500/documents/${docId}/send`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //   })
-  //     .then((res) => res.json())
-  //     .then(() => {
-  //       message.success("Document sent for signature!")
-  //       fetchDocs();
-  //     })
-
-  //     .catch(() => message.error("Failed to send for signature"));
-  // };
-
   const removeDocument = (docId) => {
     fetch(`http://localhost:4500/documents/${docId}`, {
       method: "DELETE",

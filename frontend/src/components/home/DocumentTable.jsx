@@ -18,16 +18,7 @@ const DocumentTable = () => {
       title: "Created At",
       dataIndex: "createdAt",
       render: (val) => new Date(val).toLocaleString(),
-    },
-    // {
-    //   title: "Action",
-    //   render: (_, record) =>
-    //     record.fileUrl ? (
-    //       <Button type="link" onClick={() => window.open(`http://localhost:4500${record.fileUrl}`, "_blank")}>
-    //         View
-    //       </Button>
-    //     ) : "No File",
-    // },
+    }
   ];
 
   return <Table dataSource={docs} columns={columns} rowKey="_id" />;

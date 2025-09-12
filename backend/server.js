@@ -6,10 +6,8 @@ const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/auth.js');
 const adminRoutes = require("./routes/admin");
-// const courtsRoute = require("./routes/courts");
 const documentsRoute = require("./routes/documents");
 const user = require("./routes/user.js")
-const path = require("path");
 
 
 app.use(cors({ origin: 'http://localhost:5173' }));
@@ -19,10 +17,7 @@ app.use(authRoutes);
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", user);
-// app.use("/courts", courtsRoute);
 app.use("/documents", documentsRoute);
-app.use("/uploads", express.static("uploads"));
-app.use("/templates", express.static(path.join(__dirname, "templates")));
 
 app.get("/", (req, res) => {
     res.send("home page")

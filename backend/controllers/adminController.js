@@ -43,11 +43,11 @@ const users = async (req, res) => {
 }
 
 const addCourts = async (req, res) => {
-  console.log(req.body); // Log the received data
+  // console.log(req.body);
 
   const { courtName, courtDesc, courtLocation } = req.body;
   if (!courtName || !courtLocation) {
-    return res.status(400).json({ message: "Court name and location are required." });
+    return res.status(400).json({ message: "court  and location required." });
   }
 
   try {
@@ -57,7 +57,7 @@ const addCourts = async (req, res) => {
       courtLocation,
     });
     await newCourt.save();
-    res.status(201).json({ message: "Court added successfully", court: newCourt });
+    res.status(201).json({ message: "court added", court: newCourt });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -103,9 +103,9 @@ const courtId = async (req, res) => {
 const deleteCourt = async (req, res) => {
   try {
     const deletedCourt = await Court.findByIdAndDelete(req.params.id);
-    if (!deletedCourt) return res.status(404).json({ message: "Court not found" });
+    if (!deletedCourt) return res.status(404).json({ message: "court not found" });
 
-    res.json({ message: "Court deleted successfully" });
+    res.json({ message: "court deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -133,7 +133,7 @@ const courtDetails = async (req, res) => {
       .populate("officers", "email role")
       .populate("readers", "email role");
 
-    if (!court) return res.status(404).json({ message: "Court not found" });
+    if (!court) return res.status(404).json({ message: "court not found" });
 
     const docsCount = await Document.countDocuments({ court: court._id });
 
@@ -160,12 +160,12 @@ const createAndAssignUser = async (req, res) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Invalid email format" });
+      return res.status(400).json({ message: "invalid email" });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already in use" });
+      return res.status(400).json({ message: "email already in" });
     }
 
     const newUser = new User({ name, email, password, role });
@@ -173,14 +173,14 @@ const createAndAssignUser = async (req, res) => {
     await newUser.save();
 
     const court = await Court.findById(courtId);
-    if (!court) return res.status(404).json({ message: "Court not found" });
+    if (!court) return res.status(404).json({ message: "court not found" });
 
     if (role === "officer") {
       court.officers.push(newUser._id);
     } else if (role === "reader") {
       court.readers.push(newUser._id);
     } else {
-      return res.status(400).json({ message: "Invalid role" });
+      return res.status(400).json({ message: "invalid role" });
     }
 
     newUser.court = court._id;
@@ -234,7 +234,7 @@ const getCourtUsers = async (req, res) => {
     await newUser.save();
 
     const court = await Court.findById(req.params.id);
-    if (!court) return res.status(404).json({ message: "Court not found" });
+    if (!court) return res.status(404).json({ message: "court not found" });
 
     if (role === "officer") {
       court.officers.push(newUser._id);
@@ -247,18 +247,17 @@ const getCourtUsers = async (req, res) => {
     await court.save();
 
     res.status(201).json({
-      message: "User created & assigned to court successfully",
+      message: "User created & assigned to court",
       user: newUser,
       court,
     });
   } catch (err) {
-    console.error("Error in assigning user:", err);
+    console.error("error in assigning user:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 }
 
 module.exports = {
-  // users,
   addCourts,
   getCourts,
   courtId,
