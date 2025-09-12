@@ -1,0 +1,61 @@
+# ----------------------
+# Node.js
+# ----------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ----------------------
+# Environment Variables
+# ----------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ----------------------
+# Logs
+# ----------------------
+logs
+*.log
+logs/*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ----------------------
+# OS Specific
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# Build / Dist Files
+# ----------------------
+dist/
+build/
+.cache/
+.next/
+out/
+
+# ----------------------
+# IDE / Editor
+# ----------------------
+.vscode/
+.idea/
+*.swp
+
+# ----------------------
+# Coverage / Testing
+# ----------------------
+coverage/
+*.lcov
+
+# ----------------------
+# Misc
+# ----------------------
+*.tgz

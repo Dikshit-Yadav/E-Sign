@@ -1,0 +1,13 @@
+{
+  "name": "e-sign-fullstack",
+  "version": "1.0.0",
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently -s powershell \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm start",
+    "client": "cd frontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

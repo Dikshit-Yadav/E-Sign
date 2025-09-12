@@ -1,0 +1,20 @@
+
+  container {
+    width: "350px";
+    margin: "100px auto";
+    padding: "20px";
+    border: "1px solid #ddd";
+    border-radius: "8px";
+    text-align: "center"
+  };
+  .form {
+    display: "flex";
+    flex-direction: "column"
+  };
+  .input {
+    margin-bottom: "15px";
+    padding: "8px";
+    font-size: "14px";
+    border-radius: "4px";
+    border: "1px solid #ccc"
+  }
