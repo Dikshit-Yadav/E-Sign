@@ -7,6 +7,7 @@ function AddCourt({ open, onClose, onCourtAdded }) {
   const onFinish = async (values) => {
     try {
       // console.log(values);
+       onClose();
       const res = await fetch("http://localhost:4500/admin/courts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -44,7 +44,6 @@ const users = async (req, res) => {
 
 const addCourts = async (req, res) => {
   // console.log(req.body);
-
   const { courtName, courtDesc, courtLocation } = req.body;
   if (!courtName || !courtLocation) {
     return res.status(400).json({ message: "court  and location required." });

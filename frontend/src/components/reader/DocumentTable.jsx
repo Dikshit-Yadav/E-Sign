@@ -35,13 +35,13 @@ const DocumentTable = () => {
       const data = await res.json();
       setDocs(data);
 
-      const templatesMap = {};
+      const templatesId = {};
       data.forEach((doc) => {
         if (doc.templates && doc.templates.length > 0) {
-          templatesMap[doc._id] = doc.templates;
+          templatesId[doc._id] = doc.templates;
         }
       });
-      setDocTemplates(templatesMap);
+      setDocTemplates(templatesId);
     } catch (err) {
       console.error("Error fetching docs:", err);
     }

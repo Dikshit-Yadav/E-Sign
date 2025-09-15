@@ -8,6 +8,8 @@ import ReaderDashboard from "./pages/ReaderHome";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
+import OfficerHome from './pages/OfficerHome';
+import DocumentPreview from "./pages/DocumentPreview";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,8 +38,8 @@ function App() {
               ? role === "reader"
                 ? <Navigate to="/reader-dashboard" />
                 : role === "officer"
-                ? <Navigate to="/officer-dashboard" />
-                : <Navigate to="/home" />
+                  ? <Navigate to="/officer-dashboard" />
+                  : <Navigate to="/home" />
               : <Login setIsLoggedIn={setIsLoggedIn} />
           }
         />
@@ -51,9 +53,9 @@ function App() {
           }
         />
 
-       
 
-       
+
+
         <Route path="/courts/:id" element={<CourtDetails />} />
         <Route path="/courts/:id/add-user" element={<AddUserCourt />} />
 
@@ -66,6 +68,19 @@ function App() {
           }
         />
 
+        <Route
+          path="/officer-dashboard"
+          element={
+            isLoggedIn && role === "officer"
+              ? <OfficerHome />
+              : <Navigate to="/auth/login" />
+          }
+        />
+
+        <Route
+          path="/documents/:id/preview"
+          element={isLoggedIn ? <DocumentPreview /> : <Navigate to="/auth/login" />}
+        />
 
         <Route
           path="/"
@@ -74,8 +89,8 @@ function App() {
               ? role === "reader"
                 ? <Navigate to="/reader-dashboard" />
                 : role === "officer"
-                ? <Navigate to="/officer-dashboard" />
-                : <Navigate to="/home" />
+                  ? <Navigate to="/officer-dashboard" />
+                  : <Navigate to="/home" />
               : <Navigate to="/auth/login" />
           }
         />

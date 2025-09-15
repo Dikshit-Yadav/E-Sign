@@ -8,7 +8,6 @@ function Header({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
 
-  // 🔹 Fetch user details when logged in
   useEffect(() => {
     const token = Cookies.get("token");
     const userId = Cookies.get("userId");
@@ -31,7 +30,7 @@ function Header({ setIsLoggedIn }) {
           console.error("Failed to fetch user:", err);
         });
     }
-  }, []); // runs only once on mount
+  }, []);
 
   const handleLogout = useCallback(() => {
     Cookies.remove("token");

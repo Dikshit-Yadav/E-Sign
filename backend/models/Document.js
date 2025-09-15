@@ -26,14 +26,23 @@ const DocumentSchema = new mongoose.Schema(
       required: true,
     },
 
-    signedBy: [
-      {
+    signedBy: {
+      officer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        default: null,
       },
-    ],
-
-     assignedOfficer: {
+      signature: {
+        type: String,
+        default: null,
+      },
+      signedAt: {
+        type: Date,
+        default: null,
+      },
+    },
+ 
+    assignedOfficer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
