@@ -169,10 +169,12 @@ const createAndAssignUser = async (req, res) => {
 
     const newUser = new User({ name, email, password, role });
 
-    await newUser.save();
-
+    
+    console.log("after save", newUser)
     const court = await Court.findById(courtId);
     if (!court) return res.status(404).json({ message: "court not found" });
+
+    // console.log("Court data",court)
 
     if (role === "officer") {
       court.officers.push(newUser._id);
@@ -183,8 +185,9 @@ const createAndAssignUser = async (req, res) => {
     }
 
     newUser.court = court._id;
+    console.log("assign Court",newUser.court)
     await court.save();
-
+await newUser.save();
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -193,6 +196,7 @@ const createAndAssignUser = async (req, res) => {
       },
     });
 
+    console.log("new user data", newUser)
     await transporter.sendMail({
       from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
       to: newUser.email,

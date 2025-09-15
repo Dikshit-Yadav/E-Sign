@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Button, message } from "antd";
-import LogoutButton from "../components/Logout";
 import DocumentTable from "../components/reader/DocumentTable";
 import DocumentForm from "../components/reader/DocumentForm";
 import ReaderSidebar from "../components/reader/ReaderSidebar";
@@ -31,7 +30,6 @@ function ReaderDashboard() {
     <div style={{display: "flex"}}>
     <ReaderSidebar/>
     <div style={{ padding: 20, width: "100vw" }}>
-      <h2>Reader Dashboard</h2>
 
       <Button
         type="primary"
@@ -40,7 +38,6 @@ function ReaderDashboard() {
       >
         New Request
       </Button>
-      <LogoutButton />
 
       <DocumentTable docs={docs} />
 
