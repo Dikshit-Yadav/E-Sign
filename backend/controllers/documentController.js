@@ -2,6 +2,9 @@ const path = require("path");
 const Document = require("../models/Document");
 const User = require("../models/User");
 const Court = require("../models/Court");
+const FormData = require("form-data");
+const fs = require("fs");
+const fetch = require("node-fetch");
 
 const createDocument = async (req, res) => {
   try {
@@ -93,6 +96,11 @@ const UpdateSignDocument = async (req, res) => {
   }
 };
 
+
+
+
+
+
 const removeDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
@@ -133,6 +141,9 @@ const signDocument = async (req, res) => {
     res.status(500).json({ message: "Failed to sign document" });
   }
 };
+
+
+
 
 const getDocumentPreview = async (req, res) => {
   try {
@@ -205,10 +216,10 @@ const getDocumentPreview = async (req, res) => {
         display: block;
         margin-top: 10px;
         max-width: 180px;
-        border: 1px solid #ccc;
         padding: 4px;
         border-radius: 4px;
-        background: #fafafa;
+        position: relative;
+        bottom: 145px;
       }
     </style>
   </head>
