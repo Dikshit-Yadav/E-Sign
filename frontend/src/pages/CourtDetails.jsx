@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Table, Card } from "antd";
+import { Table, Card, Spin, Descriptions, Layout } from "antd";
 import SideBar from "../components/SideBar";
+import Header from "../components/Header";
 
-function CourtDetails() {
+const { Content } = Layout;
+
+function CourtDetails({ setIsLoggedIn }) {
   const { id } = useParams();
   const [court, setCourt] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`http://localhost:4500/admin/courts/${id}/details`)
       .then((res) => res.json())
       .then((data) => setCourt(data.court))
-      .catch((err) => console.error("Error fetching court:", err));
+      .catch((err) => console.error("Error fetching court:", err))
+      .finally(() => setLoading(false));
   }, [id]);
-
-  if (!court) return <p>Loading...</p>;
 
   const userColumns = [
     { title: "Name", dataIndex: "name", key: "name" },
@@ -23,40 +27,72 @@ function CourtDetails() {
   ];
 
   return (
-    <div style={{ display: "flex" }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <SideBar />
 
-      <main style={{ flex: 1, padding: 20 }}>
-        <Card style={{ marginBottom: 20 }}>
-          <h2>{court.courtName}</h2>
-          <p>{court.courtDesc}</p>
-          <p><b>Location:</b> {court.courtLocation}</p>
-          <p><b>Readers:</b> {court.readers?.length || 0}</p>
-          <p><b>Officers:</b> {court.officers?.length || 0}</p>
-          <p><b>Documents:</b> {court.documents || 0}</p>
-        </Card>
+      <Layout style={{ marginLeft: 200 }}>
+        <Header setIsLoggedIn={setIsLoggedIn} />
 
-        <h3>Readers</h3>
-        <Card style={{ marginBottom: 20 }}>
-          <Table
-            columns={userColumns}
-            dataSource={court.readers || []}
-            rowKey="_id"
-            pagination={false}
-          />
-        </Card>
+        <Content style={{ margin: "80px 20px 20px", overflowY: "auto" }}>
+          {loading ? (
+            <Card style={{ textAlign: "center", padding: 50 }}>
+              <Spin size="large" />
+            </Card>
+          ) : court ? (
+            <>
+              <Card style={{ marginBottom: 20 }}>
+                <Descriptions title="Court Details" bordered column={1}>
+                  <Descriptions.Item label="Court Name">
+                    {court.courtName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Description">
+                    {court.courtDesc || "No description available"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Location">
+                    {court.courtLocation}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Readers">
+                    {court.readers?.length || 0}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Officers">
+                    {court.officers?.length || 0}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Documents">
+                    {court.documents || 0}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
 
-        <h3>Officers</h3>
-        <Card>
-          <Table
-            columns={userColumns}
-            dataSource={court.officers || []}
-            rowKey="_id"
-            pagination={false}
-          />
-        </Card>
-      </main>
-    </div>
+              <h3>Readers</h3>
+              <Card style={{ marginBottom: 20 }}>
+                <Table
+                  columns={userColumns}
+                  dataSource={court.readers || []}
+                  rowKey="_id"
+                  pagination={false}
+                  locale={{ emptyText: "No readers assigned to this court" }}
+                />
+              </Card>
+
+              <h3>Officers</h3>
+              <Card>
+                <Table
+                  columns={userColumns}
+                  dataSource={court.officers || []}
+                  rowKey="_id"
+                  pagination={false}
+                  locale={{ emptyText: "No officers assigned to this court" }}
+                />
+              </Card>
+            </>
+          ) : (
+            <Card style={{ textAlign: "center", padding: 50 }}>
+              <p style={{ fontSize: 16 }}>Court not found</p>
+            </Card>
+          )}
+        </Content>
+      </Layout>
+    </Layout>
   );
 }
 

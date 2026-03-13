@@ -1,42 +1,44 @@
-import React from 'react';
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Menu, Layout } from "antd";
+import {
+  DashboardOutlined,
+} from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function SideBar() {
+const { Sider } = Layout;
+
+const SideBar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const items = [
+    {
+      key: "/officer-dashboard",
+      icon: <DashboardOutlined />,
+      label: "Dashboard",
+      onClick: () => navigate("/home"),
+    },
+  ];
 
   return (
-    <>
-      <style>{`
-        .sidebar {
-          width: 250px;
-          height: 93vh;
-          background: #222;
-          color: #fff;
-          padding: 20px 10px;
-        }
-        .navList {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        .navItem {
-          padding: 10px 0;
-          cursor: pointer;
-        }
-        .body {
-          display: flex;
-          flex: 1;
-        }
-      `}</style>
-
-      <aside className='sidebar'>
-        <h2>Officer Dashboard</h2>
-        <i className="fa-solid fa-arrow-left"></i>
-        <ul className='navList'>
-          <li className='navItem' onClick={() => navigate("/officer-dashboard")}>Dashboard</li>
-        </ul>
-      </aside>
-    </>
+    <Sider
+      width={200}
+      style={{
+        background: "#001529",
+        height: "100vh",
+        marginTop:65,
+        position: "fixed",
+        left: 0,
+        top: 0,
+      }}
+    >
+      <Menu
+        theme="dark"
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        items={items}
+      />
+    </Sider>
   );
 };
 

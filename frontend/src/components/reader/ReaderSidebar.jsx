@@ -1,43 +1,44 @@
-import React from 'react';
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Layout, Menu } from "antd";
+import { HomeOutlined, FileTextOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function SideBar() {
+const { Sider } = Layout;
+
+function ReaderSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const menuItems = [
+    { key: "/reader-dashboard", icon: <HomeOutlined />, label: "Dashboard" },
+  ];
 
   return (
-    <>
-      <style>{`
-        .sidebar {
-          width: 250px;
-          height: 93vh;
-          background: #222;
-          color: #fff;
-          padding: 20px 10px;
-        }
-        .navList {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        .navItem {
-          padding: 10px 0;
-          cursor: pointer;
-        }
-        .body {
-          display: flex;
-          flex: 1;
-        }
-      `}</style>
+    <Sider
+      width={200}
+      style={{
+        height: "100vh",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        backgroundColor: "#001529",
+        color: "#fff",
+        paddingTop: 20,
+      }}
+    >
+      <div style={{ color: "#fff", fontSize: 18, textAlign: "center", marginBottom: 20 }}>
+        Reader Panel
+      </div>
 
-      <aside className='sidebar'>
-        <h2>Reader DashBoard</h2>
-        <i className="fa-solid fa-arrow-left"></i>
-        <ul className='navList'>
-          <li className='navItem' onClick={() => navigate("/reader-dashboard")}>Dashboard</li>
-        </ul>
-      </aside>
-    </>
+      <Menu
+        theme="dark"
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        onClick={(item) => navigate(item.key)}
+        items={menuItems.map((i) => ({ key: i.key, icon: i.icon, label: i.label }))}
+      />
+    </Sider>
   );
-};
+}
 
-export default SideBar;
+export default ReaderSidebar;

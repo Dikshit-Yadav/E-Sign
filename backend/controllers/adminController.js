@@ -41,6 +41,15 @@ const users = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+const documents = async(req, res) => {
+  try {
+      const docs = await Document.find();
+      res.json(docs);
+    } catch (err) {
+      console.error("error fetching documents:", err);
+      res.status(500).json({ message: err.message });
+    }
+}
 
 const addCourts = async (req, res) => {
   // console.log(req.body);
@@ -65,8 +74,7 @@ const addCourts = async (req, res) => {
 const getCourts = async (req, res) => {
   try {
     const courts = await Court.find().populate("officers")
-      .populate("readers");
-    console.log(courts)
+      .populate("readers").populate("documents");
 
     const courtsWithCounts = courts.map(court => ({
       _id: court._id,
@@ -78,12 +86,41 @@ const getCourts = async (req, res) => {
       readersCount: court.readers ? court.readers.length : 0,
       documentsCount: court.documents ? court.documents.length : 0,
     }));
+    courts.forEach(court => {
+  console.log(court.courtName);
+  console.log("Officers:", court.officers.length);
+  console.log("Readers:", court.readers.length);
+  console.log("Documents:", court.documents.length);
+});
 
     res.json(courtsWithCounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+// const getCourts = async (req, res) => {
+//   try {
+//     const courts = await Court.find()
+//       .populate("officers")
+//       .populate("readers")
+//       .populate("documents");
+
+//     const courtsWithCounts = courts.map((court) => ({
+//       officersCount: court.officers?.length || 0,
+//       readersCount: court.readers?.length || 0,
+//       documentsCount: court.documents?.length || 0, 
+//     }));
+
+//     res.json(courtsWithCounts);
+//   } catch (err) {
+//     console.error("Error fetching courts:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
+
+
 
 const courtId = async (req, res) => {
   try {
@@ -151,6 +188,7 @@ const courtDetails = async (req, res) => {
 const createAndAssignUser = async (req, res) => {
   try {
     const { courtId } = req.params;
+    console.log(courtId)
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password || !role) {
@@ -185,7 +223,7 @@ const createAndAssignUser = async (req, res) => {
     }
 
     newUser.court = court._id;
-    console.log("assign Court",newUser.court)
+    // console.log("assign Court",newUser.court)
     await court.save();
 await newUser.save();
     const transporter = nodemailer.createTransport({
@@ -196,7 +234,7 @@ await newUser.save();
       },
     });
 
-    console.log("new user data", newUser)
+    // console.log("new user data", newUser)
     await transporter.sendMail({
       from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
       to: newUser.email,
@@ -268,5 +306,6 @@ module.exports = {
   deleteCourt,
   courtDetails,
   createAndAssignUser,
-  getCourtUsers
+  getCourtUsers,
+  documents
 }

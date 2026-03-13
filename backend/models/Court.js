@@ -6,9 +6,10 @@ const CourtSchema = new mongoose.Schema({
   courtLocation: { type: String },
   officers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   readers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  documents: { type: Number, default: 0 },
+  documents: [{ type: mongoose.Schema.Types.ObjectId, ref: "Document" }],
   officerCount: { type: Number, default: 0 },
   readerCount: { type: Number, default: 0 },
+  documentsCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

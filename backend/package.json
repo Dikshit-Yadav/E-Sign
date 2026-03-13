@@ -1,19 +1,22 @@
 {
   "name": "e-sign",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "loadbalancer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": " node server.js",
-    "dev": "nodemon server.js"
-  },
+  "start:admin": "node adminService.js",
+  "start:documents": "node documentService.js",
+  "start:officer": "node officerService.js",
+  "start:all": "concurrently \"npm run start:proxy\" \"npm run start:admin\" \"npm run start:documents\" \"npm run start:officer\""
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.12.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^10.0.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "form-data": "^4.0.4",

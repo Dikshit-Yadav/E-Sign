@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Layout, Button, Divider, Typography,Input, Table, Space, Modal, Descriptions } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import CourtStats from "../components/home/CourtStatus";
@@ -8,20 +9,39 @@ import CourtTable from "../components/home/CourtTable";
 import UserTable from "../components/home/UserTable";
 import DocumentTable from "../components/home/DocumentTable";
 import CourtModals from "../components/home/CourtModals";
+import AddUserCourt from "../components/home/AddUserCourt";
+
+const { Content } = Layout;
+const { Title } = Typography;
 
 const Home = ({ setIsLoggedIn }) => {
-  const navigate = useNavigate();
-  const [isCourt, setCourt] = useState(false);
+  const [isCourtModalOpen, setCourtModalOpen] = useState(false);
   const [isUserModalOpen, setUserModalOpen] = useState(false);
   const [courts, setCourts] = useState([]);
-  const [isactive, setisactive] = useState("courts");
+  const [isActive, setIsActive] = useState("courts");
+  const [selectedCourtId, setSelectedCourtId] = useState(null);
 
-  const handleAddUser = (court) => navigate(`/courts/${court._id}/add-user`);
-  const handleCourtDetails = (court) => navigate(`/courts/${court._id}`);
-  const handleRemoveCourt = async (court) => {
-    await fetch(`http://localhost:4500/admin/courts/${court._id}`, { method: "DELETE" });
-    fetchCourts();
+  // Court Details modal
+  const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedCourtDetails, setSelectedCourtDetails] = useState(null);
+
+  const handleAddUser = (court) => {
+    setSelectedCourtId(court._id);
+    setUserModalOpen(true);
   };
+
+ const handleCourtDetails = async (court) => {
+  try {
+    const res = await fetch(`http://localhost:4500/admin/courts/${court._id}`);
+    if (!res.ok) throw new Error("Failed to fetch court details");
+    const data = await res.json();
+    setSelectedCourtDetails(data); 
+    setDetailsModalOpen(true);
+    console.log(data)
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const fetchCourts = async () => {
     try {
@@ -34,11 +54,26 @@ const Home = ({ setIsLoggedIn }) => {
           courtName: c.courtName,
           officers: Number(c.officersCount) || 0,
           readers: Number(c.readersCount) || 0,
-          documents: Number(c.documents) || 0,
+          documents: Number(c.documentsCount) || 0,
         }))
       );
     } catch (err) {
       console.error("Error fetching courts:", err);
+    }
+  };
+
+  const handleRemoveCourt = async (court) => {
+    try {
+      const res = await fetch(`http://localhost:4500/admin/courts/${court._id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchCourts();
+      } else {
+        console.error("Failed to remove court");
+      }
+    } catch (err) {
+      console.error("Error removing court:", err);
     }
   };
 
@@ -47,21 +82,31 @@ const Home = ({ setIsLoggedIn }) => {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Header setIsLoggedIn={setIsLoggedIn} />
-
-      <div style={{ display: "flex", flex: 1 }}>
+      <Layout>
         <SideBar />
-        <main style={{ flex: 1, padding: "20px", background: "#fafafa" }}>
-          <CourtStats courts={courts} setisactive={setisactive} />
+        <Layout style={{ marginLeft: 200, paddingTop: 64, background: "#fafafa" }}>
+          <Content
+            style={{
+              margin: "20px",
+              padding: "20px",
+              borderRadius: 8,
+              minHeight: "calc(100vh - 84px)",
+              overflowY: "auto",
+            }}
+          >
+            <CourtStats courts={courts} setisactive={setIsActive} />
+            <Divider />
 
-          <div style={{ marginTop: 20 }}>
-            {isactive === "courts" && (
+            {isActive === "courts" && (
               <>
-                <div style={{ display: "flex", justifyContent: "flex-end", margin: "20px 0" }}>
-                  <Button type="primary" onClick={() => setCourt(true)}>+ Add New Court</Button>
-                </div>
-                <h3>Courts Overview</h3>
+                <Space style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                  <Title level={4}>Courts Overview</Title>
+                  <Button type="primary" icon={<PlusOutlined />} onClick={() => setCourtModalOpen(true)}>
+                    Add New Court
+                  </Button>
+                </Space>
                 <CourtTable
                   courts={courts}
                   onAddUser={handleAddUser}
@@ -70,35 +115,142 @@ const Home = ({ setIsLoggedIn }) => {
                 />
               </>
             )}
-            {isactive === "readers" && (
-              <>
-                <h3>Readers Overview</h3>
-                <UserTable type="reader" />
-              </>
-            )}
-            {isactive === "officers" && (
-              <>
-                <h3>Officers Overview</h3>
-                <UserTable type="officer" />
-              </>
-            )}
-            {isactive === "documents" && (
-              <>
-                <h3>Documents Overview</h3>
-                <DocumentTable />
-              </>
-            )}
-          </div>
-          <CourtModals
-            isCourt={isCourt}
-            setCourt={setCourt}
-            fetchCourts={fetchCourts}
-            isUserModalOpen={isUserModalOpen}
-            setUserModalOpen={setUserModalOpen}
-          />
-        </main>
-      </div>
-    </div>
+
+            {isActive === "readers" && <UserTable type="reader" />}
+            {isActive === "officers" && <UserTable type="officer" />}
+            {isActive === "documents" && <DocumentTable />}
+
+            <AddUserCourt
+              isOpen={isUserModalOpen}
+              setIsOpen={setUserModalOpen}
+              courtId={selectedCourtId}
+              onUserAdded={fetchCourts}
+            />
+
+            <CourtModals
+              isCourt={isCourtModalOpen}
+              setCourt={setCourtModalOpen}
+              fetchCourts={fetchCourts}
+              isUserModalOpen={isUserModalOpen}
+              setUserModalOpen={setUserModalOpen}
+            />
+
+  <Modal
+  title="Court Details"
+  open={isDetailsModalOpen}
+  onCancel={() => setDetailsModalOpen(false)}
+  footer={null}
+  width={800}
+>
+  {selectedCourtDetails && (
+    <>
+      <Descriptions bordered column={1} size="small" style={{ marginBottom: 20 }}>
+        <Descriptions.Item label="Court Name">{selectedCourtDetails.courtName}</Descriptions.Item>
+        <Descriptions.Item label="Location">{selectedCourtDetails.courtLocation || "N/A"}</Descriptions.Item>
+        <Descriptions.Item label="Description">{selectedCourtDetails.courtDesc || "N/A"}</Descriptions.Item>
+        <Descriptions.Item label="Documents">{selectedCourtDetails.documentsCount}</Descriptions.Item>
+      </Descriptions>
+
+      <Table
+        title={() => "Officers"}
+        dataSource={selectedCourtDetails.officers || []}
+        columns={[
+          {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+              <div style={{ padding: 8 }}>
+                <Input
+                  placeholder="Search Name"
+                  value={selectedKeys[0]}
+                  onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                  onPressEnter={() => confirm()}
+                  style={{ marginBottom: 8, display: "block" }}
+                />
+                <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
+                  Search
+                </Button>
+                <Button onClick={clearFilters} size="small">
+                  Reset
+                </Button>
+              </div>
+            ),
+            onFilter: (value, record) =>
+              record.name.toLowerCase().includes(value.toLowerCase()),
+          },
+          { title: "Email", dataIndex: "email", key: "email" },
+          {
+            title: "Role",
+            dataIndex: "role",
+            key: "role",
+            filters: [
+              { text: "Officer", value: "officer" },
+              { text: "Reader", value: "reader" },
+            ],
+            onFilter: (value, record) => record.role === value,
+          },
+        ]}
+        rowKey={(record, index) => index}
+        pagination={false}
+        style={{ marginBottom: 20 }}
+      />
+
+      <Table
+        title={() => "Readers"}
+        dataSource={selectedCourtDetails.readers || []}
+        columns={[
+          {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+              <div style={{ padding: 8 }}>
+                <Input
+                  placeholder="Search Name"
+                  value={selectedKeys[0]}
+                  onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                  onPressEnter={() => confirm()}
+                  style={{ marginBottom: 8, display: "block" }}
+                />
+                <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
+                  Search
+                </Button>
+                <Button onClick={clearFilters} size="small">
+                  Reset
+                </Button>
+              </div>
+            ),
+            onFilter: (value, record) =>
+              record.name.toLowerCase().includes(value.toLowerCase()),
+          },
+          { title: "Email", dataIndex: "email", key: "email" },
+          {
+            title: "Role",
+            dataIndex: "role",
+            key: "role",
+            filters: [
+              { text: "Officer", value: "officer" },
+              { text: "Reader", value: "reader" },
+            ],
+            onFilter: (value, record) => record.role === value,
+          },
+        ]}
+        rowKey={(record, index) => index}
+        pagination={false}
+      />
+    </>
+  )}
+</Modal>
+
+
+
+          </Content>
+        </Layout>
+      </Layout>
+    </Layout>
   );
 };
 

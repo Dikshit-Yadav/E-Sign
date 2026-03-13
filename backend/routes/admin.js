@@ -11,12 +11,14 @@ const {
   deleteCourt,
   courtDetails,
   createAndAssignUser,
+  documents,
 } = require("../controllers/adminController");
 
 
 router.post("/courts", addCourts);
 router.get("/courts", getCourts);
 router.get("/courts/:id", courtId);
+router.get("/documents", documents);
 router.delete("/courts/:id", deleteCourt);
 router.get("/users", getUsers);
 router.get("/courts/:id/details", courtDetails);

@@ -6,8 +6,8 @@ const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const authRoutes = require('./routes/auth.js');
-const adminRoutes = require("./routes/admin");
-const documentsRoute = require("./routes/documents");
+const adminRoutes = require("./routes/admin.js");
+const documentsRoute = require("./routes/documents.js");
 const user = require("./routes/user.js")
 const officer = require("./routes/officer.js")
 
@@ -20,13 +20,11 @@ app.use(authRoutes);
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", user);
-app.use("/documents", documentsRoute);
-app.use("/officer", officer);
 
-app.get("/", (req, res) => {
-    res.send("home page")
+app.get("/home1", (req, res) => {
+    res.send("Admin/Auth/User Service running")
 })
-mongoose.connect(process.env.MongoDB_URl)
+mongoose.connect(process.env.MongoDB_URL, { maxPoolSize: 500 })
     .then(() => {
         console.log('MongoDB is Connected')
     })

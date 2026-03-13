@@ -5,12 +5,15 @@ const Court = require("../models/Court");
 const FormData = require("form-data");
 const fs = require("fs");
 const fetch = require("node-fetch");
+const nodemailer = require("nodemailer");
 
 const createDocument = async (req, res) => {
   try {
     const { title, description, createdBy } = req.body;
 
     const user = await User.findById(createdBy);
+    const courtId = user.court;
+    // console.log("courtid",courtId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -19,13 +22,22 @@ const createDocument = async (req, res) => {
       title,
       description,
       createdBy,
-      court: user.court,  
+      court: user.court,
       status: "draft",
       numberOfDocuments: 1,
       rejectedDocuments: 0,
     });
 
     await doc.save();
+    // console.log(doc._id)
+    await Court.findByIdAndUpdate(
+      courtId,
+      {
+        $push: { documents: doc._id },
+        $inc: { documentsCount: 1 },
+      },
+      { new: true }
+    );
     res.status(201).json(doc);
   } catch (err) {
     console.error("Error creating document:", err);
@@ -96,11 +108,6 @@ const UpdateSignDocument = async (req, res) => {
   }
 };
 
-
-
-
-
-
 const removeDocument = async (req, res) => {
   try {
     const doc = await Document.findById(req.params.id);
@@ -119,6 +126,7 @@ const signDocument = async (req, res) => {
     const { id } = req.params;
     const { signature } = req.body;
     const officerId = req.cookies.userId;
+
     const updatedDoc = await Document.findByIdAndUpdate(
       id,
       {
@@ -130,20 +138,44 @@ const signDocument = async (req, res) => {
         status: "signed",
       },
       { new: true }
-    ).populate("signedBy.officer", "name email");
+    ).populate("signedBy.officer", "name email")
+      .populate("createdBy", "name email");
+
+    const doc = updatedDoc;
+    const template = doc.templates[0];
+
+
+    const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
+      workerData: {
+        doc,
+        template,
+        emailConfig: { service: "gmail", user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      },
+    });
+
+    worker.on("message", (msg) => {
+      if (!msg.success) {
+        console.error("Email worker failed:", msg.error);
+      }
+    });
+
+    worker.on("error", (err) => {
+      console.error("Worker thread error:", err)
+    });
+    worker.on("exit", (code) => {
+      if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
+    });
 
     res.status(200).json({
       message: "Document signed successfully",
       signedBy: updatedDoc.signedBy,
     });
+
   } catch (err) {
     console.error("Error signing document:", err);
     res.status(500).json({ message: "Failed to sign document" });
   }
 };
-
-
-
 
 const getDocumentPreview = async (req, res) => {
   try {
@@ -261,6 +293,8 @@ const getDocumentPreview = async (req, res) => {
 
 const rejectDocument = async (req, res) => {
   try {
+    // console.log("params:", req.params);
+
     const doc = await Document.findById(req.params.id);
     if (!doc) return res.status(404).json({ message: "document not found" });
 
@@ -283,7 +317,7 @@ const saveTemplateData = async (req, res) => {
     if (!doc) return res.status(404).json({ message: "document not found" });
 
     doc.templates = templates;
-     doc.signedBy = {
+    doc.signedBy = {
       officer: null,
       signature: null,
       signedAt: new Date(),
@@ -303,7 +337,7 @@ const getAllOfficers = async (req, res) => {
       .populate("createdBy", "name email")
       .populate("readers", "name email")
       .populate("signedBy", "name email")
-      .populate("court")  
+      .populate("court")
       .populate({
         path: 'court',
         populate: { path: 'officers', select: 'name email' }

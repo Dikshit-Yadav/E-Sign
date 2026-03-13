@@ -13,7 +13,7 @@ const DocumentPreview = () => {
 
   const fetchDocument = async () => {
     try {
-      const res = await fetch(`http://localhost:4500/documents/${id}/preview`, {
+      const res = await fetch(`http://localhost:4502/documents/${id}/preview`, {
         credentials: "include",
       });
       const data = await res.json();

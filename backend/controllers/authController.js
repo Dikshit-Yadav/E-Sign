@@ -38,4 +38,28 @@ const  login=     async (req, res) => {
       }
     }
 
-module.exports = login;
+const logout = (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+    });
+    res.clearCookie("role", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+    });
+    res.clearCookie("userId", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: false,
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Logout failed" });
+  }
+};
+
+module.exports = {login,logout};
