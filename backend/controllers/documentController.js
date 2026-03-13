@@ -1,5 +1,6 @@
 const path = require("path");
 const Document = require("../models/Document");
+const { Worker } = require("worker_threads");
 const User = require("../models/User");
 const Court = require("../models/Court");
 const FormData = require("form-data");
@@ -125,6 +126,7 @@ const signDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { signature } = req.body;
+    console.log(signature);
     const officerId = req.cookies.userId;
 
     const updatedDoc = await Document.findByIdAndUpdate(
@@ -141,15 +143,20 @@ const signDocument = async (req, res) => {
     ).populate("signedBy.officer", "name email")
       .populate("createdBy", "name email");
 
-    const doc = updatedDoc;
+    const doc = updatedDoc.toObject();
     const template = doc.templates[0];
-
-
-    const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
+    console.log("template", template)
+    const worker = new Worker( path.join(__dirname, "../workers/signDocumentWorker.js"), {
       workerData: {
         doc,
         template,
-        emailConfig: { service: "gmail", user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+        emailConfig: {
+          service: "gmail",
+          auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+        },
       },
     });
 

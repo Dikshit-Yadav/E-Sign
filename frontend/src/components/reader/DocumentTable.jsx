@@ -110,9 +110,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
       const updatedDoc = await res.json();
       if (!res.ok) throw new Error(updatedDoc.message);
 
-      setDocs((prev) =>
-        prev.map((doc) => (doc._id === updatedDoc.doc._id ? updatedDoc.doc : doc))
-      );
+     refreshDocs();
 
       message.success("Template(s) saved to MongoDB!");
     } catch (err) {
@@ -127,121 +125,6 @@ const DocumentTable = ({ docs, refreshDocs }) => {
   };
 
 
-  // const generatePDF = async (templates) => {
-  //   try {
-  //     for (const tpl of templates) {
-  //       const pdfDoc = await PDFDocument.create();
-  //       const page = pdfDoc.addPage([600, 800]);
-  //       const { height } = page.getSize();
-
-  //       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  //       const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-  //       const drawText = (text, x, y, size = 12, bold = false, align = "left") => {
-  //         const textWidth = (bold ? fontBold : font).widthOfTextAtSize(text, size);
-  //         const drawX = align === "center" ? (600 - textWidth) / 2 : x;
-  //         page.drawText(text, {
-  //           x: drawX,
-  //           y,
-  //           size,
-  //           font: bold ? fontBold : font,
-  //           color: rgb(0, 0, 0),
-  //         });
-  //       };
-
-  //       let y = height - 60;
-
-  //       // Title
-  //       drawText("Court Document Template", 0, y, 18, true, "center");
-
-  //       y -= 40;
-
-  //       // Helper to draw fields
-  //       const drawField = (label, value) => {
-  //         drawText(`${label}:`, 50, y, 12, true);
-  //         drawText(value || "N/A", 200, y);
-  //         y -= 25;
-  //         // Draw separator line
-  //         page.drawLine({
-  //           start: { x: 50, y: y + 10 },
-  //           end: { x: 550, y: y + 10 },
-  //           thickness: 0.5,
-  //           color: rgb(0.7, 0.7, 0.7),
-  //           dashArray: [2, 2],
-  //         });
-  //       };
-
-  //       drawField("Date", tpl.date);
-  //       drawField("Customer", tpl.customer);
-  //       drawField("Amount", tpl.amount);
-  //       drawField("Due Date", tpl.dueDate);
-  //       drawField("Address", tpl.address);
-  //       drawField("Court", tpl.court);
-  //       drawField("Case ID", tpl.caseId);
-
-  //       y -= 40;
-
-  //       // Signature Section
-  //       drawText("Authorized Signature", 50, y, 14, true);
-  //       y -= 20;
-
-  //       // Signature Line
-  //       page.drawLine({
-  //         start: { x: 130, y },
-  //         end: { x: 300, y },
-  //         thickness: 1,
-  //         color: rgb(0, 0, 0),
-  //       });
-  //       y -= 15;
-
-  //       drawText(tpl.signedBy?.officer?.name || "Not signed", 130, y, 12);
-  //       y -= 15;
-
-  //       drawText(
-  //         `Signed on: ${tpl.signedBy?.signedAt ? new Date(tpl.signedBy.signedAt).toLocaleString() : "N/A"}`,
-  //         130,
-  //         y,
-  //         10
-  //       );
-
-  //       // Optional signature image
-  //       if (tpl.signedBy?.signature) {
-  //         const sigImage = await pdfDoc.embedPng(tpl.signedBy.signature);
-  //         const sigDims = sigImage.scale(0.25);
-  //         page.drawImage(sigImage, {
-  //           x: 400,
-  //           y: y - 30,
-  //           width: sigDims.width,
-  //           height: sigDims.height,
-  //         });
-  //       }
-
-  //       // Optional QR Code
-  //       const qrValue = `Customer: ${tpl.customer}, Case ID: ${tpl.caseId}, Amount: ${tpl.amount}`;
-  //       const qrDataUrl = await QRCode.toDataURL(qrValue);
-  //       const qrImage = await pdfDoc.embedPng(qrDataUrl);
-  //       page.drawImage(qrImage, {
-  //         x: 400,
-  //         y: 80,
-  //         width: 80,
-  //         height: 80,
-  //       });
-
-  //       // Download PDF
-  //       const pdfBytes = await pdfDoc.save();
-  //       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  //       const link = document.createElement("a");
-  //       link.href = URL.createObjectURL(blob);
-  //       link.download = `Court_Template_${tpl.caseId}.pdf`;
-  //       link.click();
-  //     }
-
-  //     message.success("PDF(s) downloaded!");
-  //   } catch (err) {
-  //     console.error(err);
-  //     message.error("PDF generation failed");
-  //   }
-  // };
   const generatePDF = async (templates) => {
     try {
       for (const tpl of templates) {
@@ -265,13 +148,22 @@ const DocumentTable = ({ docs, refreshDocs }) => {
         };
 
         let y = height - 60;
+
         drawText("Court Document Template", 0, y, 18, true, "center");
+
         y -= 40;
 
         const drawField = (label, value) => {
           drawText(`${label}:`, 50, y, 12, true);
           drawText(value || "N/A", 200, y);
           y -= 25;
+          page.drawLine({
+            start: { x: 50, y: y + 10 },
+            end: { x: 550, y: y + 10 },
+            thickness: 0.5,
+            color: rgb(0.7, 0.7, 0.7),
+            dashArray: [2, 2],
+          });
         };
 
         drawField("Date", tpl.date);
@@ -283,6 +175,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
         drawField("Case ID", tpl.caseId);
 
         y -= 40;
+
         drawText("Authorized Signature", 50, y, 14, true);
         y -= 20;
 
@@ -292,9 +185,17 @@ const DocumentTable = ({ docs, refreshDocs }) => {
           thickness: 1,
           color: rgb(0, 0, 0),
         });
-
         y -= 15;
+
         drawText(tpl.signedBy?.officer?.name || "Not signed", 130, y, 12);
+        y -= 15;
+
+        drawText(
+          `Signed on: ${tpl.signedBy?.signedAt ? new Date(tpl.signedBy.signedAt).toLocaleString() : "N/A"}`,
+          130,
+          y,
+          10
+        );
 
         if (tpl.signedBy?.signature) {
           const sigImage = await pdfDoc.embedPng(tpl.signedBy.signature);
@@ -310,7 +211,12 @@ const DocumentTable = ({ docs, refreshDocs }) => {
         const qrValue = `Customer: ${tpl.customer}, Case ID: ${tpl.caseId}, Amount: ${tpl.amount}`;
         const qrDataUrl = await QRCode.toDataURL(qrValue);
         const qrImage = await pdfDoc.embedPng(qrDataUrl);
-        page.drawImage(qrImage, { x: 400, y: 80, width: 80, height: 80 });
+        page.drawImage(qrImage, {
+          x: 400,
+          y: 80,
+          width: 80,
+          height: 80,
+        });
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
@@ -325,6 +231,8 @@ const DocumentTable = ({ docs, refreshDocs }) => {
       console.error(err);
       message.error("PDF generation failed");
     }
+
+
   };
 
   const columns = [
@@ -333,8 +241,8 @@ const DocumentTable = ({ docs, refreshDocs }) => {
       dataIndex: "title",
       render: (_, record) => (
         <Button type="link" disabled={record.status === "signed"}
-        style={{color:"green"}}
-         onClick={() => handleTitleClick(record)}>
+          style={{ color: "green" }}
+          onClick={() => handleTitleClick(record)}>
           {record.title}
         </Button>
       ),
@@ -364,18 +272,18 @@ const DocumentTable = ({ docs, refreshDocs }) => {
     {
       title: "Actions",
       render: (_, record) => {
-        const templates = record.template || docTemplates[record._id];
+        const templates = record.templates || docTemplates[record._id];
         const menu = (
           <Menu>
             <Menu.Item
               key="download"
-              // disabled={!templates?.length}
+              disabled={!templates.length}
               onClick={() => generatePDF(templates)}
             >
               Download Templates
             </Menu.Item>
             <Menu.Item key="send"
-             disabled={record.status === "signed"}
+              disabled={record.status === "signed"}
               onClick={() => fetchOfficers(record._id)}>
               Send for Signature
             </Menu.Item>

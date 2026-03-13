@@ -73,6 +73,7 @@ const DocumentSchema = new mongoose.Schema(
         address: String,
         court: String,
         caseId: String,
+        signature: String
       },
     ],
 

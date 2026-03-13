@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Document Preview - <%= doc.title %></title>
+  <style>
+    body {
+      font-family: "Times New Roman", serif;
+      margin: 50px auto;
+      max-width: 800px;
+      padding: 40px;
+      background: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.15);
+    }
+    h1 {
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 24px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 8px;
+    }
+    .field {
+      margin-bottom: 14px;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #bbb;
+      padding: 4px 0;
+    }
+    .label { font-weight: bold; }
+  </style>
+</head>
+
+<body>
+
+<h1><%= doc.title || "Court Document" %></h1>
+
+<div class="field">
+<span class="label">Date:</span>
+<span><%= new Date(doc.createdAt).toISOString().split("T")[0] %></span>
+</div>
+
+<div class="field">
+<span class="label">Customer:</span>
+<span><%= doc.createdBy?.name || "N/A" %></span>
+</div>
+
+<div class="field">
+<span class="label">Amount:</span>
+<span><%= template?.amount || "N/A" %></span>
+</div>
+
+<div class="field">
+<span class="label">Due Date:</span>
+<span><%= template?.dueDate || "N/A" %></span>
+</div>
+
+<div class="field">
+<span class="label">Address:</span>
+<span><%= template?.address || "N/A" %></span>
+</div>
+
+<div class="field">
+<span class="label">Court:</span>
+<span><%= template?.court || "N/A" %></span>
+</div>
+
+<div class="field">
+<span class="label">Case ID:</span>
+<span><%= template?.caseId || "N/A" %></span>
+</div>
+
+<div style="margin-top:50px">
+<h3>Authorized Signature</h3>
+
+<% if(doc.signedBy?.officer){ %>
+
+<strong><%= doc.signedBy.officer.name %></strong><br>
+
+<small>
+Signed on:
+<%= doc.signedBy.signedAt ? new Date(doc.signedBy.signedAt).toLocaleString() : "N/A" %>
+</small>
+
+<br><br>
+
+<img src="<%= doc.signedBy.signature %>" width="180">
+
+<% } else { %>
+
+<p>No signature provided yet.</p>
+
+<% } %>
+
+</div>
+
+</body>
+</html>
