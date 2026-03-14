@@ -32,7 +32,7 @@ const Home = ({ setIsLoggedIn }) => {
 
  const handleCourtDetails = async (court) => {
   try {
-    const res = await fetch(`https://e-sign-vl9f.onrender.com/admin/courts/${court._id}`);
+    const res = await fetch(`https://e-sign1.onrender.com/admin/courts/${court._id}`);
     if (!res.ok) throw new Error("Failed to fetch court details");
     const data = await res.json();
     setSelectedCourtDetails(data); 
@@ -45,7 +45,7 @@ const Home = ({ setIsLoggedIn }) => {
 
   const fetchCourts = async () => {
     try {
-      const res = await fetch("https://e-sign-vl9f.onrender.com/admin/courts");
+      const res = await fetch("https://e-sign1.onrender.com/admin/courts");
       const data = await res.json();
       setCourts(
         data.map((c, index) => ({
@@ -64,7 +64,7 @@ const Home = ({ setIsLoggedIn }) => {
 
   const handleRemoveCourt = async (court) => {
     try {
-      const res = await fetch(`https://e-sign-vl9f.onrender.com/admin/courts/${court._id}`, {
+      const res = await fetch(`https://e-sign1.onrender.com/admin/courts/${court._id}`, {
         method: "DELETE",
       });
       if (res.ok) {
