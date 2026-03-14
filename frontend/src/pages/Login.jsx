@@ -39,7 +39,11 @@ const Login = ({ setIsLoggedIn }) => {
 
       message.success("Login successful!");
 
-      Cookies.set("token", result.token, { expires: 1, secure: true, sameSite: "Strict" });
+      Cookies.set("token", result.token, {
+        expires: 1,
+        secure: true,
+        sameSite: "None"
+      });
       Cookies.set("role", result.user.role, { expires: 1 });
       Cookies.set("userId", result.user.id, { expires: 1 });
 
@@ -53,7 +57,7 @@ const Login = ({ setIsLoggedIn }) => {
         } else {
           navigate("/home");
         }
-      }, 50); 
+      }, 50);
     } catch (err) {
       message.error(err.message || "Login error");
     } finally {
