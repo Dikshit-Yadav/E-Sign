@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "main": "loadbalancer.js",
   "scripts": {
-    "start:admin": "node adminService.js",
-    "start:documents": "node documentService.js",
-    "start:officer": "node officerService.js",
-    "start:all": "concurrently \"npm run start:proxy\" \"npm run start:admin\" \"npm run start:documents\" \"npm run start:officer\""
-  },
+  "start": "node cluster.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
