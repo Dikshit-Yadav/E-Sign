@@ -24,7 +24,7 @@ const Login = ({ setIsLoggedIn }) => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4500/auth/login", {
+      const res = await fetch("https://e-sign-vl9f.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
