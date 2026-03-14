@@ -27,7 +27,7 @@ const DocumentTable = () => {
 
   const fetchDocs = async () => {
     try {
-      const res = await fetch("http://localhost:4500/officer/documents", {
+      const res = await fetch("https://e-sign1.onrender.com/officer/documents", {
         credentials: "include",
       });
       const data = await res.json();
