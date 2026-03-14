@@ -16,7 +16,7 @@ function Header({ setIsLoggedIn }) {
     const userId = Cookies.get("userId");
 
     if (token && userId) {
-      fetch(`http://localhost:4500/users/${userId}`, {
+      fetch(`https://e-sign1.onrender.com/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())
