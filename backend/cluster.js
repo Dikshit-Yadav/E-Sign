@@ -2,6 +2,8 @@ const cluster = require("cluster");
 const os = require("os");
 const numCPUs = os.cpus().length;
 
+require('dotenv').config();
+
 if (cluster.isPrimary) {
     console.log(`Primary process ${process.pid} is running`);
     for (let i = 0; i < numCPUs; i++) {
