@@ -8,7 +8,7 @@ function AddCourt({ open, onClose, onCourtAdded }) {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4500/admin/courts", {
+      const res = await fetch("https://e-sign1.onrender.com/admin/courts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

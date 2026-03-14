@@ -30,7 +30,7 @@ function Header({ setIsLoggedIn }) {
 
   const handleLogout = useCallback(async () => {
   try {
-    const res = await fetch("http://localhost:4500/logout", {
+    const res = await fetch("https://e-sign1.onrender.com/logout", {
       method: "POST",
       credentials: "include",
     });

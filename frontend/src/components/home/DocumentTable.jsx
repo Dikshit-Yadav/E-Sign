@@ -23,7 +23,7 @@ const DocumentTable = () => {
   const fetchDocs = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4500/admin/documents");
+      const res = await fetch("https://e-sign1.onrender.com/admin/documents");
       const data = await res.json();
       setDocs(data);
       message.success("Documents loaded successfully");
