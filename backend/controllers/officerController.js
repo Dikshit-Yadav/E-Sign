@@ -58,7 +58,8 @@ const uploadSignature = async (req, res) => {
       knownLength: req.file.size,
     });
 
-    const response = await axios.post("http://localhost:5000/remove-bg", formData, {
+    // const response = await axios.post("http://localhost:5000/remove-bg", formData, {
+     const response = await axios.post("https://python-vy16.onrender.com//remove-bg", formData, {
       headers: formData.getHeaders(),
       responseType: "arraybuffer",
     });

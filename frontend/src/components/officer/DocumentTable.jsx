@@ -27,7 +27,7 @@ const DocumentTable = () => {
 
   const fetchDocs = async () => {
     try {
-      const res = await fetch("https://e-sign1.onrender.com/officer/documents", {
+      const res = await fetch("http://localhost:4500/officer/documents", {
         credentials: "include",
       });
       const data = await res.json();
@@ -41,11 +41,11 @@ const DocumentTable = () => {
 
   const fetchSignaturePreview = async () => {
     try {
-      const res = await fetch("https://e-sign1.onrender.com/officer/get-signature", {
+      const res = await fetch("http://localhost:4500/officer/get-signature", {
         credentials: "include"
       });
       const data = await res.json();
-      if (data.signature) setPreview(`https://e-sign1.onrender.com${data.signature}`);
+      if (data.signature) setPreview(`http://localhost:4500${data.signature}`);
     } catch(err) {
       console.log(err.message)
     }
@@ -53,7 +53,7 @@ const DocumentTable = () => {
 
   const handleReject = async (id) => {
     // console.log(id)
-    await fetch(`https://e-sign1.onrender.com/documents/${id}/reject`, { method: "PUT" });
+    await fetch(`http://localhost:4500/documents/${id}/reject`, { method: "PUT" });
     message.success("Document rejected");
     fetchDocs();
   };
@@ -64,13 +64,13 @@ const DocumentTable = () => {
     setUploading(true);
 
     try {
-      const res = await fetch("https://e-sign1.onrender.com/officer/upload-signature", {
+      const res = await fetch("http://localhost:4500/officer/upload-signature", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
       const result = await res.json();
-      setPreview(`https://e-sign1.onrender.com${result.signature}`);
+      setPreview(`http://localhost:4500${result.signature}`);
       message.success("Signature uploaded successfully!");
     } catch (err) {
       message.error(err.message);
