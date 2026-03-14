@@ -1,4 +1,4 @@
-require('dotenv').config()
+// require('dotenv').config()
 const express = require("express");
 const cors = require('cors');
 const app = express();
@@ -27,7 +27,10 @@ app.get("/", (req, res) => {
     res.send("home page")
 })
 
-mongoose.connect(process.env.MongoDB_URL)
+mongoose.connect(process.env.MongoDB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
     .then(() => {
         console.log('MongoDB is Connected')
     })
