@@ -1,14 +1,10 @@
 {
   "name": "e-sign",
   "version": "1.0.0",
-  "main": "loadbalancer.js",
+  "main": "cluster.js",
   "scripts": {
-  "start": "node cluster.js"
-},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+    "start": "node cluster.js"
+  },
   "dependencies": {
     "axios": "^1.12.2",
     "cookie-parser": "^1.4.7",
@@ -24,5 +20,10 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.6",
     "undici": "^7.16.0"
-  }
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "description": "E-Sign backend for production deployment",
+  "keywords": ["express", "node", "cluster", "mongodb", "render"]
 }

@@ -26,7 +26,8 @@ app.use("/officer", officer);
 app.get("/", (req, res) => {
     res.send("home page")
 })
-mongoose.connect(process.env.MongoDB_URl)
+
+mongoose.connect(process.env.MongoDB_URL)
     .then(() => {
         console.log('MongoDB is Connected')
     })
