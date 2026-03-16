@@ -7,6 +7,8 @@ const FormData = require("form-data");
 
 const getOfficerDocuments = async (req, res) => {
   try {
+     console.log("All Cookies:", req.cookies);
+    console.log("UserId Cookie:", req.cookies.userId)
    const officerId = req.cookies.userId;
     console.log(officerId);
     const docs = await Document.find({ assignedOfficer: officerId })
