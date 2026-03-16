@@ -45,8 +45,10 @@ const uploadSignature = async (req, res) => {
     const outputPath = path.join(outputDir, outputFilename);
 
     await sharp(filePath)
-      .grayscale()
-      .threshold(200)
+      .trim()
+      .ensureAlpha()
+      .linear(1, -128)
+      .threshold(128)
       .png()
       .toFile(outputPath);
 
