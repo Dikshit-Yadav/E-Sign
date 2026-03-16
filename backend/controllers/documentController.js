@@ -48,7 +48,8 @@ const createDocument = async (req, res) => {
 
 const getAllDocuments = async (req, res) => {
   try {
-    const { userId } = req.query;
+    // const { userId } = req.query;
+    const { userId } = req.cookies.userId;
     const docs = await Document.find({ createdBy: userId })
       .populate("createdBy", "email role")
       .populate("signedBy", "email");
