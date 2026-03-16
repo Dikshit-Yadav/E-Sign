@@ -51,7 +51,7 @@ const uploadSignature = async (req, res) => {
       
     fs.unlinkSync(filePath);
 
-    user.signature = `/uploads/signatures/${outputFilename}`;
+    user.signature = `/uploads/signature/${outputFilename}`;
     await user.save();
 
     res.json({ message: "Signature uploaded successfully", signature: user.signature });
