@@ -19,13 +19,13 @@ app.use(cookieParser());
 
 app.use(authRoutes);
 app.use("/auth", authRoutes);
-app.use("/admin",authMiddleware, adminRoutes);
+app.use("/admin", adminRoutes);
 app.use("/", user);
-app.use("/documents",authMiddleware, documentsRoute);
-app.use("/officer",authMiddleware, officer);
+app.use("/documents", documentsRoute);
+app.use("/officer", officer);
 
-app.get("/", authMiddleware, (req, res) => {
-    res.send("home page")
+app.get("/", (req, res) => {
+    res.redirect("/auth/login");
 })
 
 mongoose.connect(process.env.MongoDB_URL, {
