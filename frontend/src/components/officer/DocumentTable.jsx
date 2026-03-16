@@ -30,7 +30,9 @@ const DocumentTable = () => {
       const res = await fetch("https://e-sign1.onrender.com/officer/documents", {
         credentials: "include",
       });
+      console.log("res",res);
       const data = await res.json();
+      console.log("data",data)
       setDocs(data);
     } catch {
       message.error("Failed to load documents");
