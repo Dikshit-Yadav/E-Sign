@@ -2,7 +2,7 @@ const Document = require("../models/Document");
 const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
-const { removeBackground} = require("@imgly/background-removal-node")
+const sharp = require("sharp");
 const axios = require("axios");
 const FormData = require("form-data");
 
@@ -44,12 +44,11 @@ const uploadSignature = async (req, res) => {
     const outputFilename = `signature-${Date.now()}.png`;
     const outputPath = path.join(outputDir, outputFilename);
 
-     await removeBackground({
-      input: filePath,
-      output: outputPath,
-      alphaMatte: true,
-      trim: true
-    });
+     await sharp(filePath)
+      .threshold(200)
+      .png()
+      .toFile(outputPath);
+      
     fs.unlinkSync(filePath);
 
     user.signature = `/uploads/signatures/${outputFilename}`;
@@ -62,48 +61,7 @@ const uploadSignature = async (req, res) => {
   }
 };
 
-// const uploadSignature = async (req, res) => {
-//   try {
-//     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
-//     const officerId = req.cookies.userId;
-//     const user = await User.findById(officerId);
-//     if (!user || user.role !== "officer") {
-//       return res.status(403).json({ message: "Only officers can upload signatures" });
-//     }
-
-//     const filePath = req.file.path;
-//     const fileStream = fs.createReadStream(filePath);
-//     const formData = new FormData();
-//     formData.append("image", fileStream, {
-//       filename: req.file.originalname,
-//       contentType: req.file.mimetype,
-//       knownLength: req.file.size,
-//     });
-
-//     // const response = await axios.post("http://localhost:5000/remove-bg", formData, {
-//      const response = await axios.post("https://python-vy16.onrender.com/remove-bg", formData, {
-//       headers: formData.getHeaders(),
-//       responseType: "arraybuffer",
-//     });
-
-//     const outputDir = path.join(__dirname, "../uploads/signature");
-//     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-//     const outputFilename = `signature-${Date.now()}.png`;
-//     const outputPath = path.join(outputDir, outputFilename);
-//     fs.writeFileSync(outputPath, Buffer.from(response.data));
-
-//     fs.unlinkSync(filePath);
-
-//     user.signature = `/uploads/signature/${outputFilename}`;
-//     await user.save();
-//     res.json({ success: true, message: "Signature uploaded successfully", signature: user.signature });
-
-//   } catch (err) {
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// };
 
 
 

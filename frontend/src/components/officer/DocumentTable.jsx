@@ -76,6 +76,9 @@ const DocumentTable = () => {
         credentials: "include",
       });
       const result = await res.json();
+      if(!res.ok){
+        throw new Error(result.message || "Upload failed");
+      }
       setPreview(`https://e-sign1.onrender.com${result.signature}`);
       message.success("Signature uploaded successfully!");
     } catch (err) {
