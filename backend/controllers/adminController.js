@@ -41,14 +41,14 @@ const users = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
-const documents = async(req, res) => {
+const documents = async (req, res) => {
   try {
-      const docs = await Document.find();
-      res.json(docs);
-    } catch (err) {
-      console.error("error fetching documents:", err);
-      res.status(500).json({ message: err.message });
-    }
+    const docs = await Document.find();
+    res.json(docs);
+  } catch (err) {
+    console.error("error fetching documents:", err);
+    res.status(500).json({ message: err.message });
+  }
 }
 
 const addCourts = async (req, res) => {
@@ -87,11 +87,11 @@ const getCourts = async (req, res) => {
       documentsCount: court.documents ? court.documents.length : 0,
     }));
     courts.forEach(court => {
-  console.log(court.courtName);
-  console.log("Officers:", court.officers.length);
-  console.log("Readers:", court.readers.length);
-  console.log("Documents:", court.documents.length);
-});
+      console.log(court.courtName);
+      console.log("Officers:", court.officers.length);
+      console.log("Readers:", court.readers.length);
+      console.log("Documents:", court.documents.length);
+    });
 
     res.json(courtsWithCounts);
   } catch (err) {
@@ -207,7 +207,7 @@ const createAndAssignUser = async (req, res) => {
 
     const newUser = new User({ name, email, password, role });
 
-    
+
     console.log("after save", newUser)
     const court = await Court.findById(courtId);
     if (!court) return res.status(404).json({ message: "court not found" });
@@ -225,7 +225,7 @@ const createAndAssignUser = async (req, res) => {
     newUser.court = court._id;
     // console.log("assign Court",newUser.court)
     await court.save();
-await newUser.save();
+    await newUser.save();
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -235,11 +235,12 @@ await newUser.save();
     });
 
     // console.log("new user data", newUser)
-    await transporter.sendMail({
-      from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
-      to: newUser.email,
-      subject: `You have been assigned as ${role}`,
-      html: `
+    try {
+      await transporter.sendMail({
+        from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
+        to: newUser.email,
+        subject: `You have been assigned as ${role}`,
+        html: `
         <h3>Hello ${newUser.name || "Officer"},</h3>
         <p>You have been assigned as an <b>${role}</b> to the court:</p>
         <ul>
@@ -250,7 +251,10 @@ await newUser.save();
         <p>Please log in to the system to access your account.</p>
         <p>If you didn't request this, please ignore this email.</p>
       `,
-    });
+      });
+    } catch (emailErr) {
+      console.error("Email send failed:", emailErr);
+    }
 
     res.status(201).json({
       message: `${role} created and assigned successfully`,
