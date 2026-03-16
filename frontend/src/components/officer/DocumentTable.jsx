@@ -28,15 +28,19 @@ const DocumentTable = () => {
   const fetchDocs = async () => {
     try {
       const res = await fetch("https://e-sign1.onrender.com/officer/documents", {
+        method: "GET",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      console.log("res",res);
+      console.log("res", res);
       const data = await res.json();
-      console.log("data",data)
+      console.log("data", data)
       setDocs(data);
     } catch {
       message.error("Failed to load documents");
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -48,7 +52,7 @@ const DocumentTable = () => {
       });
       const data = await res.json();
       if (data.signature) setPreview(`https://e-sign1.onrender.com${data.signature}`);
-    } catch(err) {
+    } catch (err) {
       console.log(err.message)
     }
   };
@@ -139,11 +143,15 @@ const DocumentTable = () => {
       key: "action",
       render: (_, record) => {
         const items = [
-          { key: "1", label: "Read",
-             onClick: () => handlePreview(record) },
-          { key: "2", label: "Reject",
-            disabled:record.status == "signed",
-             onClick: () => handleReject(record._id) },
+          {
+            key: "1", label: "Read",
+            onClick: () => handlePreview(record)
+          },
+          {
+            key: "2", label: "Reject",
+            disabled: record.status == "signed",
+            onClick: () => handleReject(record._id)
+          },
           {
             key: "3",
             label: "Dispatch Signature",

@@ -8,7 +8,7 @@ const FormData = require("form-data");
 const getOfficerDocuments = async (req, res) => {
   try {
    const officerId = req.cookies.userId;
-    // console.log(officerId);
+    console.log(officerId);
     const docs = await Document.find({ assignedOfficer: officerId })
       .populate("createdBy", "name email")
       .sort({ updatedAt: -1 });
@@ -58,8 +58,8 @@ const uploadSignature = async (req, res) => {
       knownLength: req.file.size,
     });
 
-    // const response = await axios.post("http://localhost:5000/remove-bg", formData, {
-     const response = await axios.post("https://python-vy16.onrender.com//remove-bg", formData, {
+    const response = await axios.post("http://localhost:5000/remove-bg", formData, {
+    //  const response = await axios.post("https://python-vy16.onrender.com//remove-bg", formData, {
       headers: formData.getHeaders(),
       responseType: "arraybuffer",
     });
