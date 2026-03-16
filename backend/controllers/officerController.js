@@ -2,7 +2,7 @@ const Document = require("../models/Document");
 const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
-const { removeBackgroundFromImageFile } = require("@rembg/rembg");
+const { removeBackgroundFromImageFile } = require("rembg-wasm")
 const axios = require("axios");
 const FormData = require("form-data");
 
