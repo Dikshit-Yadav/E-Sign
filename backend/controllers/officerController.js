@@ -44,11 +44,12 @@ const uploadSignature = async (req, res) => {
     const outputFilename = `signature-${Date.now()}.png`;
     const outputPath = path.join(outputDir, outputFilename);
 
-     await sharp(filePath)
+    await sharp(filePath)
+      .grayscale()
       .threshold(200)
       .png()
       .toFile(outputPath);
-      
+
     fs.unlinkSync(filePath);
 
     user.signature = `/uploads/signature/${outputFilename}`;
