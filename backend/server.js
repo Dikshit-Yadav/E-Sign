@@ -5,6 +5,7 @@ const app = express();
 const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const authMiddleware = require("./middlewares/authMiddleware.js");
 const authRoutes = require('./routes/auth.js');
 const adminRoutes = require("./routes/admin");
 const documentsRoute = require("./routes/documents");
@@ -18,12 +19,12 @@ app.use(cookieParser());
 
 app.use(authRoutes);
 app.use("/auth", authRoutes);
-app.use("/admin", adminRoutes);
+app.use("/admin",authMiddleware, adminRoutes);
 app.use("/", user);
-app.use("/documents", documentsRoute);
-app.use("/officer", officer);
+app.use("/documents",authMiddleware, documentsRoute);
+app.use("/officer",authMiddleware, officer);
 
-app.get("/", (req, res) => {
+app.get("/", authMiddleware, (req, res) => {
     res.send("home page")
 })
 
