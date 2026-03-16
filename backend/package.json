@@ -6,6 +6,7 @@
     "start": "node cluster.js"
   },
   "dependencies": {
+    "@imgly/background-removal-node": "^1.4.5",
     "axios": "^1.12.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,5 +26,11 @@
     "node": "20.x"
   },
   "description": "E-Sign backend for production deployment",
-  "keywords": ["express", "node", "cluster", "mongodb", "render"]
+  "keywords": [
+    "express",
+    "node",
+    "cluster",
+    "mongodb",
+    "render"
+  ]
 }

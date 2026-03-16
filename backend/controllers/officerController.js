@@ -2,7 +2,7 @@ const Document = require("../models/Document");
 const User = require("../models/User");
 const path = require("path");
 const fs = require("fs");
-const { removeBackgroundFromImageFile } = require("rembg-wasm")
+const { removeBackground} = require("@imgly/background-removal-node")
 const axios = require("axios");
 const FormData = require("form-data");
 
@@ -44,11 +44,11 @@ const uploadSignature = async (req, res) => {
     const outputFilename = `signature-${Date.now()}.png`;
     const outputPath = path.join(outputDir, outputFilename);
 
-    await removeBackgroundFromImageFile({
+     await removeBackground({
       input: filePath,
       output: outputPath,
-      type: "auto",
-      alphaMatting: true
+      alphaMatte: true,
+      trim: true
     });
     fs.unlinkSync(filePath);
 
