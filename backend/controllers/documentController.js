@@ -246,7 +246,6 @@ const getDocumentPreview = async (req, res) => {
       }
       .signature-box {
         display: inline-block;
-        border-top: 1px solid #000;
         margin-top: 50px;
         padding-top: 5px;
         padding-bottom: 10px;
@@ -261,6 +260,13 @@ const getDocumentPreview = async (req, res) => {
         align-items: flex-end;
         justify-content: center;
       }
+      .signature-line {
+        border-top: 1px solid #000;
+        margin-top: 0;
+      }
+      .signature-meta {
+        margin-top: 6px;
+      }
       .signature-image-area img {
         display: block;
         max-width: 180px;
@@ -268,6 +274,8 @@ const getDocumentPreview = async (req, res) => {
         width: auto;
         height: auto;
         object-fit: contain;
+        background: transparent;
+        mix-blend-mode: multiply;
       }
     </style>
   </head>
@@ -287,10 +295,13 @@ const getDocumentPreview = async (req, res) => {
       ${doc.signedBy?.officer
         ? `
             <div class="signature-box">
-              <strong>${doc.signedBy.officer.name}</strong><br/>
-              <small>Signed on: ${doc.signedBy.signedAt ? new Date(doc.signedBy.signedAt).toLocaleString() : "N/A"}</small>
               <div class="signature-image-area">
                 <img src="${doc.signedBy.signature}" alt="Signature" />
+              </div>
+              <div class="signature-line"></div>
+              <div class="signature-meta">
+                <strong>${doc.signedBy.officer.name}</strong><br/>
+                <small>Signed on: ${doc.signedBy.signedAt ? new Date(doc.signedBy.signedAt).toLocaleString() : "N/A"}</small>
               </div>
             </div>
           `
