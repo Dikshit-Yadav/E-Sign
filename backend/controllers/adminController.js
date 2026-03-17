@@ -3,7 +3,8 @@ const Court = require("../models/Court");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const Document = require("../models/Document");
-
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 const users = async (req, res) => {
   try {
     const { role, email, password } = req.body;
@@ -226,17 +227,10 @@ const createAndAssignUser = async (req, res) => {
     // console.log("assign Court",newUser.court)
     await court.save();
     await newUser.save();
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
 
     // console.log("new user data", newUser)
     try {
-      await transporter.sendMail({
+      await resend.emails.send({
         from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
         to: newUser.email,
         subject: `You have been assigned as ${role}`,
