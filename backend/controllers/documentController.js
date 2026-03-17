@@ -202,7 +202,7 @@ const getDocumentPreview = async (req, res) => {
     // const baseUrl = `${req.protocol}://${req.get("host")}`;
     // console.log(`${baseUrl} ${doc.signedBy.signature}`);
 
-    let html = `
+     let html = `
 <html>
   <head>
     <title>Document Preview - ${doc.title}</title>
@@ -249,17 +249,25 @@ const getDocumentPreview = async (req, res) => {
         border-top: 1px solid #000;
         margin-top: 50px;
         padding-top: 5px;
+        padding-bottom: 10px;
         font-size: 14px;
         text-align: center;
+        min-width: 260px;
       }
-      .signature-section img {
-        display: block;
+      .signature-image-area {
+        height: 90px;
         margin-top: 10px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .signature-image-area img {
+        display: block;
         max-width: 180px;
-        padding: 4px;
-        border-radius: 4px;
-        position: relative;
-        bottom: 145px;
+        max-height: 90px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
       }
     </style>
   </head>
@@ -281,7 +289,9 @@ const getDocumentPreview = async (req, res) => {
             <div class="signature-box">
               <strong>${doc.signedBy.officer.name}</strong><br/>
               <small>Signed on: ${doc.signedBy.signedAt ? new Date(doc.signedBy.signedAt).toLocaleString() : "N/A"}</small>
-              <img src="${doc.signedBy.signature}" alt="Signature" />
+              <div class="signature-image-area">
+                <img src="${doc.signedBy.signature}" alt="Signature" />
+              </div>
             </div>
           `
         : "<p>No signature provided yet.</p>"

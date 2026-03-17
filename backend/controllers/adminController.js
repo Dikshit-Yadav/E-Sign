@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const Document = require("../models/Document");
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
+
 const users = async (req, res) => {
   try {
     const { role, email, password } = req.body;
@@ -42,6 +43,7 @@ const users = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+
 const documents = async (req, res) => {
   try {
     const docs = await Document.find();
