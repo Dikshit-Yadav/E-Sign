@@ -137,6 +137,12 @@ const removeDocument = async (req, res) => {
     if (!doc) return res.status(404).json({ message: "document not found" });
 
     await doc.deleteOne();
+    
+    await redis.del(`document:${req.params.id}`);
+    await redis.del(`documents:${officerId}`);
+    await redis.del(`officer:${officerId}:docs`);
+    await redis.del("courts");
+
     res.json({ message: "document removed " });
   } catch (err) {
     console.error("Error removing document:", err);
@@ -165,9 +171,13 @@ const signDocument = async (req, res) => {
     ).populate("signedBy.officer", "name email")
       .populate("createdBy", "name email");
 
+    await redis.del(`documents:${officerId}`);
+    await redis.del(`document:${id}`);
+    await redis.del(`courts`);
+
     const doc = updatedDoc.toObject();
     const template = doc.templates[0];
-    console.log("template", template)
+
     const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
       workerData: {
         doc,
@@ -245,14 +255,17 @@ const getDocumentPreview = async (req, res) => {
 
 const rejectDocument = async (req, res) => {
   try {
-    // console.log("params:", req.params);
-
     const doc = await Document.findById(req.params.id);
     if (!doc) return res.status(404).json({ message: "document not found" });
 
     doc.status = "rejected";
     doc.rejectedDocuments += 1;
     await doc.save();
+
+    await redis.del(`document:${doc._id}`);
+    await redis.del(`documents:${doc.assignedOfficer}`);
+    await redis.del(`officer:${doc.assignedOfficer}:docs`);
+    await redis.del("courts");
 
     res.json({ message: "document rejected", doc });
   } catch (err) {
