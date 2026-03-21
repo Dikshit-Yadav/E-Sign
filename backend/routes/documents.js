@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
+const cache =require("../middlewares/cachMiddleware");
 const {
   getAllDocuments,
   getDocumentById,
@@ -20,16 +21,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.get("/", getAllDocuments);
+router.get("/", cache(`documents:${req.query.userId}`), getAllDocuments);
 router.post("/", upload.single("template"), createDocument);
-router.get("/:id", getDocumentById);
+router.get("/:id",cache(`document:${req.params.id}`), getDocumentById);
 router.post("/:id/send", sendDocumentSign);
 router.put("/:id/sign",signDocument);
 router.put("/:id/reject", rejectDocument);
 router.post("/:id/save-template", saveTemplateData);
 router.delete("/:id", removeDocument);
-router.get("/:id/officers", getAllOfficers);
-router.get("/:id/preview", getDocumentPreview);
+router.get("/:id/officers",cache(`offcers:${req.params.id}`), getAllOfficers);
+router.get("/:id/preview",cache(`preview:${req.params.id}`), getDocumentPreview);
 
 
 module.exports = router;

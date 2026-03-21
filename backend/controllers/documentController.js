@@ -3,6 +3,7 @@ const Document = require("../models/Document");
 const { Worker } = require("worker_threads");
 const User = require("../models/User");
 const Court = require("../models/Court");
+const redis = require("../redisClient");
 const FormData = require("form-data");
 const fs = require("fs");
 const fetch = require("node-fetch");
@@ -49,10 +50,20 @@ const createDocument = async (req, res) => {
 const getAllDocuments = async (req, res) => {
   try {
     const { userId } = req.query;
-    // const { userId } = req.cookies.userId;
+
+    const cacheData = await redis.get(`documents:${userId}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
+
     const docs = await Document.find({ createdBy: userId })
       .populate("createdBy", "email role")
       .populate("signedBy", "email");
+
+    await redis.setEx(`documents:${userId}`, 60, JSON.stringify(docs));
     res.json(docs);
   } catch (err) {
     console.error("error fetching documents:", err);
@@ -62,12 +73,22 @@ const getAllDocuments = async (req, res) => {
 
 const getDocumentById = async (req, res) => {
   try {
-    // console.log(req.params)
-    const doc = await Document.findById(req.params.id)
+    const { id } = req.params;
+
+    const cacheData = await redis.get(`document:${id}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
+    const doc = await Document.findById(id)
       .populate("createdBy", "email")
       .populate("signedBy", "email");
 
     if (!doc) return res.status(404).json({ message: "Document not found" });
+
+    await redis.setEx(`document:${id}`, 60, JSON.stringify(doc));
     res.json(doc);
   } catch (err) {
     console.error("error fetching document:", err);
@@ -147,16 +168,16 @@ const signDocument = async (req, res) => {
     const doc = updatedDoc.toObject();
     const template = doc.templates[0];
     console.log("template", template)
-    const worker = new Worker( path.join(__dirname, "../workers/signDocumentWorker.js"), {
+    const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
       workerData: {
         doc,
         template,
         emailConfig: {
           service: "gmail",
           auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
         },
       },
     });
@@ -192,6 +213,13 @@ const getDocumentPreview = async (req, res) => {
       return res.status(400).json({ message: "Invalid document ID" });
     }
 
+    const cacheData = await redis.get(`preview:${id}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
     const doc = await Document.findById(id)
       .populate("createdBy", "name email")
       .populate("signedBy.officer", "name email");
@@ -199,118 +227,13 @@ const getDocumentPreview = async (req, res) => {
     if (!doc) return res.status(404).send("Document not found");
 
     const template = doc.templates[0];
-    // const baseUrl = `${req.protocol}://${req.get("host")}`;
-    // console.log(`${baseUrl} ${doc.signedBy.signature}`);
+    res.render("documentpreview", { doc, template }, async (err, html) => {
+      if (err) {
+        return res.status(500).send("Render error");
+      }
+    });
 
-     let html = `
-<html>
-  <head>
-    <title>Document Preview - ${doc.title}</title>
-    <style>
-      body {
-        font-family: "Times New Roman", serif;
-        margin: 50px auto;
-        max-width: 800px;
-        padding: 40px;
-        background: #fff;
-        border: 1px solid #ccc;
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.15);
-      }
-      h1 {
-        text-align: center;
-        text-transform: uppercase;
-        font-size: 24px;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #000;
-        padding-bottom: 8px;
-      }
-      .field {
-        margin-bottom: 14px;
-        font-size: 16px;
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px dashed #bbb;
-        padding: 4px 0;
-      }
-      .label {
-        font-weight: bold;
-        flex: 0 0 150px;
-      }
-      .value {
-        flex: 1;
-        text-align: right;
-      }
-      .signature-section {
-        margin-top: 50px;
-        text-align: left;
-      }
-      .signature-box {
-        display: inline-block;
-        margin-top: 50px;
-        padding-top: 5px;
-        padding-bottom: 10px;
-        font-size: 14px;
-        text-align: center;
-        min-width: 260px;
-      }
-      .signature-image-area {
-        height: 90px;
-        margin-top: 10px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-      }
-      .signature-line {
-        border-top: 1px solid #000;
-        margin-top: 0;
-      }
-      .signature-meta {
-        margin-top: 6px;
-      }
-      .signature-image-area img {
-        display: block;
-        max-width: 180px;
-        max-height: 90px;
-        width: auto;
-        height: auto;
-        object-fit: contain;
-        background: transparent;
-        mix-blend-mode: multiply;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>${doc.title || "Court Document"}</h1>
-
-    <div class="field"><span class="label">Date:</span><span class="value">${doc.createdAt.toISOString().split("T")[0]}</span></div>
-    <div class="field"><span class="label">Customer:</span><span class="value">${doc.createdBy?.name || "N/A"}</span></div>
-    <div class="field"><span class="label">Amount:</span><span class="value">${template?.amount || "N/A"}</span></div>
-    <div class="field"><span class="label">Due Date:</span><span class="value">${template?.dueDate || "N/A"}</span></div>
-    <div class="field"><span class="label">Address:</span><span class="value">${template?.address || "N/A"}</span></div>
-    <div class="field"><span class="label">Court:</span><span class="value">${template?.court || "N/A"}</span></div>
-    <div class="field"><span class="label">Case ID:</span><span class="value">${template?.caseId || "N/A"}</span></div>
-
-    <div class="signature-section">
-      <h3>Authorized Signature</h3>
-      ${doc.signedBy?.officer
-        ? `
-            <div class="signature-box">
-              <div class="signature-image-area">
-                <img src="${doc.signedBy.signature}" alt="Signature" />
-              </div>
-              <div class="signature-line"></div>
-              <div class="signature-meta">
-                <strong>${doc.signedBy.officer.name}</strong><br/>
-                <small>Signed on: ${doc.signedBy.signedAt ? new Date(doc.signedBy.signedAt).toLocaleString() : "N/A"}</small>
-              </div>
-            </div>
-          `
-        : "<p>No signature provided yet.</p>"
-      }
-    </div>
-  </body>
-</html>
-`;
+    await redis.setEx(`preview:${id}`, 60, html);
 
 
     res.send(html);
@@ -362,7 +285,16 @@ const saveTemplateData = async (req, res) => {
 
 const getAllOfficers = async (req, res) => {
   try {
-    const doc = await Document.findById(req.params.id)
+    const { id } = req.params;
+
+    const cacheData = await redis.get(`officers:${id}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
+    const doc = await Document.findById(id)
       .populate("createdBy", "name email")
       .populate("readers", "name email")
       .populate("signedBy", "name email")
@@ -371,10 +303,6 @@ const getAllOfficers = async (req, res) => {
         path: 'court',
         populate: { path: 'officers', select: 'name email' }
       });
-
-    // console.log("Document fetched:", doc);
-    // console.log("Document Court:", doc.court);
-    // console.log("Officers for this court:", doc.court.officers);
 
     if (!doc) {
       return res.status(404).json({ message: "Document not found" });
@@ -387,6 +315,7 @@ const getAllOfficers = async (req, res) => {
     if (doc.court.officers.length === 0) {
       return res.status(404).json({ message: "No officers found for this court" });
     }
+    await redis.setEx(`officers:${id}`, 60, JSON.stringify(doc.court.officers));
 
     res.json(doc.court.officers);
   } catch (err) {
