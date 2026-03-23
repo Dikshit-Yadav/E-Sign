@@ -10,14 +10,14 @@ const { Text } = Typography;
 function Header({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
-
+ const userId = localStorage.getItem("userId");
   useEffect(() => {
     const token = Cookies.get("token");
-    const userId = Cookies.get("userId");
-
+    // const userId = Cookies.get("userId");
+console.log(userId)
     if (token && userId) {
       fetch(`${import.meta.env.VITE_API}/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => res.json())
         .then((data) => setUserName(data?.name || "User"))
@@ -51,6 +51,7 @@ function Header({ setIsLoggedIn }) {
     message.error("Server error while logging out");
   }
 }, [navigate, setIsLoggedIn]);
+
 
   const menuItems = [
     {

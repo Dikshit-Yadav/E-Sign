@@ -39,7 +39,7 @@ const Login = ({ setIsLoggedIn }) => {
       }
 
       message.success("Login successful!");
-
+      localStorage.setItem("userId", result.user.id);
       Cookies.set("token", result.token, {
         expires: 1,
         secure: true,
@@ -47,6 +47,7 @@ const Login = ({ setIsLoggedIn }) => {
       });
       Cookies.set("role", result.user.role, { expires: 1 });
       Cookies.set("userId", result.user.id, { expires: 1 });
+
 
       setIsLoggedIn(true);
 

@@ -48,6 +48,7 @@ const Home = ({ setIsLoggedIn }) => {
       const res = await fetch(`${import.meta.env.VITE_API}/admin/courts`);
 
       const data = await res.json();
+      console.log(data)
       setCourts(
         data.map((c, index) => ({
           key: index + 1,
