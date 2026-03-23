@@ -13,7 +13,7 @@ const AddUserCourtModal = ({ isOpen, setIsOpen, courtId, onUserAdded }) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://e-sign1.onrender.com/admin/courts/${courtId}/users`,
+        `${import.meta.env.API}/admin/courts/${courtId}/users`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

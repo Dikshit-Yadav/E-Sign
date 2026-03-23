@@ -23,7 +23,7 @@ const DocumentForm = ({ modelOpen, setModalOpen, fetchDocs }) => {
 
     try {
       setSubmitLoading(true);
-      const res = await fetch("https://e-sign1.onrender.com/documents", {
+      const res = await fetch(`${import.meta.env.API}/documents`, {
         method: "POST",
         body: formData,
       });

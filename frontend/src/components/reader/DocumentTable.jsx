@@ -41,7 +41,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
 
   const removeDocument = async (docId) => {
     try {
-      const res = await fetch(`https://e-sign1.onrender.com/documents/${docId}`, { method: "DELETE" });
+      const res = await fetch(`${import.meta.env.API}/documents/${docId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       message.success("Document removed!");
       refreshDocs();
@@ -53,7 +53,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
   const fetchOfficers = async (docId) => {
     try {
       setLoadingOfficers(true);
-      const res = await fetch(`https://e-sign1.onrender.com/documents/${docId}/officers`);
+      const res = await fetch(`${import.meta.env.API}/documents/${docId}/officers`);
       const data = await res.json();
       setOfficers(data);
       setOfficerDropdown(docId);
@@ -99,7 +99,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
       form.resetFields();
 
       const res = await fetch(
-        `https://e-sign1.onrender.com/documents/${selectedDoc._id}/save-template`,
+        `${import.meta.env.API}/documents/${selectedDoc._id}/save-template`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -317,7 +317,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
                     onChange={async (officerId) => {
                       try {
                         const res = await fetch(
-                          `https://e-sign1.onrender.com/documents/${record._id}/send`,
+                          `${import.meta.env.API}/documents/${record._id}/send`,
                           {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },

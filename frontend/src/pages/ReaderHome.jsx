@@ -30,7 +30,7 @@ function ReaderDashboard() {
   }
 
   try {
-    const res = await fetch(`https://e-sign1.onrender.com/documents?userId=${userId}`);
+    const res = await fetch(`${import.meta.env.API}/documents?userId=${userId}`);
     const data = await res.json();
     setDocs(Array.isArray(data) ? data : []);
   } catch (err) {

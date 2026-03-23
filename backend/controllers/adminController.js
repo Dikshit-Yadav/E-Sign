@@ -68,6 +68,16 @@ const getCourts = async (req, res) => {
         }
       }
     ]);
+    // const courtsWithCounts = courts.map(court => ({
+    //   _id: court._id,
+    //   courtName: court.courtName,
+    //   courtDesc: court.courtDesc,
+    //   courtLocation: court.courtLocation,
+    //   createdAt: court.createdAt,
+    //   officersCount: court.officers ? court.officers.length : 0,
+    //   readersCount: court.readers ? court.readers.length : 0,
+    //   documentsCount: court.documents ? court.documents.length : 0,
+    // }));
 
     await redis.setEx("courts", 60, json.stringify(courts));
     res.json(courts);

@@ -13,7 +13,7 @@ function CourtDetails({ setIsLoggedIn }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`https://e-sign1.onrender.com/admin/courts/${id}/details`)
+    fetch(`${import.meta.env.API}/admin/courts/${id}/details`)
       .then((res) => res.json())
       .then((data) => setCourt(data.court))
       .catch((err) => console.error("Error fetching court:", err))

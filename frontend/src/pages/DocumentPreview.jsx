@@ -13,7 +13,7 @@ const DocumentPreview = () => {
 
   const fetchDocument = async () => {
     try {
-      const res = await fetch(`https://e-sign1.onrender.com/documents/${id}/preview`, {
+      const res = await fetch(`${import.meta.env.API}/documents/${id}/preview`, {
         credentials: "include",
       });
       const data = await res.json();

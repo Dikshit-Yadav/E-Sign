@@ -19,7 +19,7 @@ const UserTable = ({ type }) => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`https://e-sign1.onrender.com/admin/users?role=${type}`);
+      const res = await fetch(`${import.meta.env.API}/admin/users?role=${type}`);
       const data = await res.json();
       setUsers(data);
       message.success("Users loaded successfully");
