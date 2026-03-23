@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.get("/", cache(`documents:${req.query.userId}`), getAllDocuments);
+router.get("/", cache((req)=>`documents:${req.query.userId}`), getAllDocuments);
 router.post("/", upload.single("template"), createDocument);
 router.get("/:id",cache((req)=>`document:${req.params.id}`), getDocumentById);
 router.post("/:id/send", sendDocumentSign);
