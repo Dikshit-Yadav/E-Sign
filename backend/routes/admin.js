@@ -23,7 +23,7 @@ router.get("/documents",cache("documents"),
   documents);
 router.delete("/courts/:id", deleteCourt);
 router.get("/users", getUsers);
-router.get("/courts/:id/details",cache((req) =>"courtDetails:"+req.params.id), courtDetails);
+router.get("/courts/:id/details",cache((req) =>`courtDetails:${req.params.id}`), courtDetails);
 router.post("/courts/:courtId/users", createAndAssignUser);
 
 

@@ -1,7 +1,7 @@
 const redis = require("../redisClient");
 
 const cache = (key) => {
-    async (req, res, next)=>{
+   return async (req, res, next)=>{
         try {
             const cacheData = await redis.get(key);
             if (cacheData) {
