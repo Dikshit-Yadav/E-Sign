@@ -24,7 +24,7 @@ const Login = ({ setIsLoggedIn }) => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.API}/auth/login`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

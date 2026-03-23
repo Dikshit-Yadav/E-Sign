@@ -13,7 +13,7 @@ const AddUserCourtModal = ({ isOpen, setIsOpen, courtId, onUserAdded }) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `${import.meta.env.API}/admin/courts/${courtId}/users`,
+        `${import.meta.env.VITE_API}/admin/courts/${courtId}/users`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

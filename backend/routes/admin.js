@@ -17,7 +17,7 @@ const {
 
 
 router.post("/courts", addCourts);
-router.get("/courts", cache("courts"),getCourts);
+router.get("/courts",getCourts);
 router.get("/courts/:id",cache((req) =>`court:${req.params.id}`), courtId);
 router.get("/documents",cache("documents"),
   documents);

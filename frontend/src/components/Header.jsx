@@ -16,7 +16,7 @@ function Header({ setIsLoggedIn }) {
     const userId = Cookies.get("userId");
 
     if (token && userId) {
-      fetch(`${import.meta.env.API}/users/${userId}`, {
+      fetch(`${import.meta.env.VITE_API}/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())

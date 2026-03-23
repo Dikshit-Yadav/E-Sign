@@ -23,7 +23,7 @@ const DocumentForm = ({ modelOpen, setModalOpen, fetchDocs }) => {
 
     try {
       setSubmitLoading(true);
-      const res = await fetch(`${import.meta.env.API}/documents`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/documents`, {
         method: "POST",
         body: formData,
       });

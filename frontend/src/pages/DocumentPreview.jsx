@@ -13,7 +13,7 @@ const DocumentPreview = () => {
 
   const fetchDocument = async () => {
     try {
-      const res = await fetch(`${import.meta.env.API}/documents/${id}/preview`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/documents/${id}/preview`, {
         credentials: "include",
       });
       const data = await res.json();

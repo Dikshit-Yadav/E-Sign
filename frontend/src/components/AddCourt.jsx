@@ -8,7 +8,7 @@ function AddCourt({ open, onClose, onCourtAdded }) {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const res = await fetch(`${import.meta.env.API}/admin/courts`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

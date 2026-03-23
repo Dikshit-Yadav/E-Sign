@@ -48,6 +48,7 @@ const addCourts = async (req, res) => {
 const getCourts = async (req, res) => {
   try {
     const cacheData = await redis.get("courts");
+    console.log(cacheData);
     if (cacheData) {
       console.log("from cache");
       return res.send(JSON.parse(cacheData));
@@ -55,32 +56,21 @@ const getCourts = async (req, res) => {
     console.log("redis miss")
 
     const courts = await Court.aggregate([
-      {
-        $project: {
-          courtName: 1,
-          courtLocation: 1,
-          courtDesc: 1,
-          createdAt: 1,
+  {
+    $project: {
+      courtName: 1,
+      courtLocation: 1,
+      courtDesc: 1,
+      createdAt: 1,
 
-          officerCount: { $size: "$officers" },
-          readerCount: { $size: "$readers" },
-          documentsCount: { $size: "$documents" }
-        }
-      }
-    ]);
-    // const courtsWithCounts = courts.map(court => ({
-    //   _id: court._id,
-    //   courtName: court.courtName,
-    //   courtDesc: court.courtDesc,
-    //   courtLocation: court.courtLocation,
-    //   createdAt: court.createdAt,
-    //   officersCount: court.officers ? court.officers.length : 0,
-    //   readersCount: court.readers ? court.readers.length : 0,
-    //   documentsCount: court.documents ? court.documents.length : 0,
-    // }));
-
-    await redis.setEx("courts", 60, json.stringify(courts));
-    res.json(courts);
+      officerCount: { $size: { $ifNull: ["$officers", []] } },
+      readerCount: { $size: { $ifNull: ["$readers", []] } },
+      documentsCount: { $size: { $ifNull: ["$documents", []] } }
+    }
+  }
+]);
+   await redis.setEx("courts", 60, JSON.stringify(courts));
+     res.json(courts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -95,12 +85,12 @@ const courtId = async (req, res) => {
     }
     console.log("redis miss")
 
-    const court = await Court.findById(`court: ${req.params.id}`)
+    const court = await Court.findById(req.params.id)
       .populate("officers")
       .populate("readers");
 
     if (!court) return res.status(404).json({ message: "Court not found" });
-    await redis.setEx(`court: ${court._id}`, 60, JSON.stringify(court));
+    await redis.setEx(`court: ${req.params.id}`, 60, JSON.stringify(court));
 
     res.json(court);
   } catch (err) {

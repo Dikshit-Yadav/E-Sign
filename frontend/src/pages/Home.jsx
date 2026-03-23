@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Button, Divider, Typography,Input, Table, Space, Modal, Descriptions } from "antd";
+import { Layout, Button, Divider, Typography, Input, Table, Space, Modal, Descriptions } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import SideBar from "../components/SideBar";
@@ -30,31 +30,32 @@ const Home = ({ setIsLoggedIn }) => {
     setUserModalOpen(true);
   };
 
- const handleCourtDetails = async (court) => {
-  try {
-    const res = await fetch(`${import.meta.env.API}/admin/courts/${court._id}`);
-    if (!res.ok) throw new Error("Failed to fetch court details");
-    const data = await res.json();
-    setSelectedCourtDetails(data); 
-    setDetailsModalOpen(true);
-    console.log(data)
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const handleCourtDetails = async (court) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts/${court._id}`);
+      if (!res.ok) throw new Error("Failed to fetch court details");
+      const data = await res.json();
+      // console.log(data)
+      setSelectedCourtDetails(data);
+      setDetailsModalOpen(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchCourts = async () => {
     try {
-      const res = await fetch(`${import.meta.env.API}/admin/courts`);
+      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts`);
+
       const data = await res.json();
       setCourts(
         data.map((c, index) => ({
           key: index + 1,
           _id: c._id,
           courtName: c.courtName,
-          officers: Number(c.officersCount) || 0,
-          readers: Number(c.readersCount) || 0,
-          documents: Number(c.documentsCount) || 0,
+          officers: c.officerCount || 0,
+          readers: c.readerCount || 0,
+          documents: c.documentsCount || 0,
         }))
       );
     } catch (err) {
@@ -64,7 +65,7 @@ const Home = ({ setIsLoggedIn }) => {
 
   const handleRemoveCourt = async (court) => {
     try {
-      const res = await fetch(`${import.meta.env.API}/admin/courts/${court._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts/${court._id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -135,115 +136,115 @@ const Home = ({ setIsLoggedIn }) => {
               setUserModalOpen={setUserModalOpen}
             />
 
-  <Modal
-  title="Court Details"
-  open={isDetailsModalOpen}
-  onCancel={() => setDetailsModalOpen(false)}
-  footer={null}
-  width={800}
->
-  {selectedCourtDetails && (
-    <>
-      <Descriptions bordered column={1} size="small" style={{ marginBottom: 20 }}>
-        <Descriptions.Item label="Court Name">{selectedCourtDetails.courtName}</Descriptions.Item>
-        <Descriptions.Item label="Location">{selectedCourtDetails.courtLocation || "N/A"}</Descriptions.Item>
-        <Descriptions.Item label="Description">{selectedCourtDetails.courtDesc || "N/A"}</Descriptions.Item>
-        <Descriptions.Item label="Documents">{selectedCourtDetails.documentsCount}</Descriptions.Item>
-      </Descriptions>
+            <Modal
+              title="Court Details"
+              open={isDetailsModalOpen}
+              onCancel={() => setDetailsModalOpen(false)}
+              footer={null}
+              width={800}
+            >
+              {selectedCourtDetails && (
+                <>
+                  <Descriptions bordered column={1} size="small" style={{ marginBottom: 20 }}>
+                    <Descriptions.Item label="Court Name">{selectedCourtDetails.courtName}</Descriptions.Item>
+                    <Descriptions.Item label="Location">{selectedCourtDetails.courtLocation || "N/A"}</Descriptions.Item>
+                    <Descriptions.Item label="Description">{selectedCourtDetails.courtDesc || "N/A"}</Descriptions.Item>
+                    <Descriptions.Item label="Documents">{selectedCourtDetails.documentsCount}</Descriptions.Item>
+                  </Descriptions>
 
-      <Table
-        title={() => "Officers"}
-        dataSource={selectedCourtDetails.officers || []}
-        columns={[
-          {
-            title: "Name",
-            dataIndex: "name",
-            key: "name",
-            sorter: (a, b) => a.name.localeCompare(b.name),
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-              <div style={{ padding: 8 }}>
-                <Input
-                  placeholder="Search Name"
-                  value={selectedKeys[0]}
-                  onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                  onPressEnter={() => confirm()}
-                  style={{ marginBottom: 8, display: "block" }}
-                />
-                <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
-                  Search
-                </Button>
-                <Button onClick={clearFilters} size="small">
-                  Reset
-                </Button>
-              </div>
-            ),
-            onFilter: (value, record) =>
-              record.name.toLowerCase().includes(value.toLowerCase()),
-          },
-          { title: "Email", dataIndex: "email", key: "email" },
-          {
-            title: "Role",
-            dataIndex: "role",
-            key: "role",
-            filters: [
-              { text: "Officer", value: "officer" },
-              { text: "Reader", value: "reader" },
-            ],
-            onFilter: (value, record) => record.role === value,
-          },
-        ]}
-        rowKey={(record, index) => index}
-        pagination={false}
-        style={{ marginBottom: 20 }}
-      />
+                  <Table
+                    title={() => "Officers"}
+                    dataSource={selectedCourtDetails.officers || []}
+                    columns={[
+                      {
+                        title: "Name",
+                        dataIndex: "name",
+                        key: "name",
+                        sorter: (a, b) => a.name.localeCompare(b.name),
+                        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                          <div style={{ padding: 8 }}>
+                            <Input
+                              placeholder="Search Name"
+                              value={selectedKeys[0]}
+                              onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                              onPressEnter={() => confirm()}
+                              style={{ marginBottom: 8, display: "block" }}
+                            />
+                            <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
+                              Search
+                            </Button>
+                            <Button onClick={clearFilters} size="small">
+                              Reset
+                            </Button>
+                          </div>
+                        ),
+                        onFilter: (value, record) =>
+                          record.name.toLowerCase().includes(value.toLowerCase()),
+                      },
+                      { title: "Email", dataIndex: "email", key: "email" },
+                      {
+                        title: "Role",
+                        dataIndex: "role",
+                        key: "role",
+                        filters: [
+                          { text: "Officer", value: "officer" },
+                          { text: "Reader", value: "reader" },
+                        ],
+                        onFilter: (value, record) => record.role === value,
+                      },
+                    ]}
+                    rowKey={(record, index) => index}
+                    pagination={false}
+                    style={{ marginBottom: 20 }}
+                  />
 
-      <Table
-        title={() => "Readers"}
-        dataSource={selectedCourtDetails.readers || []}
-        columns={[
-          {
-            title: "Name",
-            dataIndex: "name",
-            key: "name",
-            sorter: (a, b) => a.name.localeCompare(b.name),
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-              <div style={{ padding: 8 }}>
-                <Input
-                  placeholder="Search Name"
-                  value={selectedKeys[0]}
-                  onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                  onPressEnter={() => confirm()}
-                  style={{ marginBottom: 8, display: "block" }}
-                />
-                <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
-                  Search
-                </Button>
-                <Button onClick={clearFilters} size="small">
-                  Reset
-                </Button>
-              </div>
-            ),
-            onFilter: (value, record) =>
-              record.name.toLowerCase().includes(value.toLowerCase()),
-          },
-          { title: "Email", dataIndex: "email", key: "email" },
-          {
-            title: "Role",
-            dataIndex: "role",
-            key: "role",
-            filters: [
-              { text: "Officer", value: "officer" },
-              { text: "Reader", value: "reader" },
-            ],
-            onFilter: (value, record) => record.role === value,
-          },
-        ]}
-        rowKey={(record, index) => index}
-        pagination={false}
-      />
-    </>
-  )}
-</Modal>
+                  <Table
+                    title={() => "Readers"}
+                    dataSource={selectedCourtDetails.readers || []}
+                    columns={[
+                      {
+                        title: "Name",
+                        dataIndex: "name",
+                        key: "name",
+                        sorter: (a, b) => a.name.localeCompare(b.name),
+                        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                          <div style={{ padding: 8 }}>
+                            <Input
+                              placeholder="Search Name"
+                              value={selectedKeys[0]}
+                              onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                              onPressEnter={() => confirm()}
+                              style={{ marginBottom: 8, display: "block" }}
+                            />
+                            <Button onClick={confirm} size="small" type="primary" style={{ marginRight: 8 }}>
+                              Search
+                            </Button>
+                            <Button onClick={clearFilters} size="small">
+                              Reset
+                            </Button>
+                          </div>
+                        ),
+                        onFilter: (value, record) =>
+                          record.name.toLowerCase().includes(value.toLowerCase()),
+                      },
+                      { title: "Email", dataIndex: "email", key: "email" },
+                      {
+                        title: "Role",
+                        dataIndex: "role",
+                        key: "role",
+                        filters: [
+                          { text: "Officer", value: "officer" },
+                          { text: "Reader", value: "reader" },
+                        ],
+                        onFilter: (value, record) => record.role === value,
+                      },
+                    ]}
+                    rowKey={(record, index) => index}
+                    pagination={false}
+                  />
+                </>
+              )}
+            </Modal>
 
 
 

@@ -27,7 +27,7 @@ const DocumentTable = () => {
 
   const fetchDocs = async () => {
     try {
-      const res = await fetch(`${import.meta.env.API}/officer/documents`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/officer/documents`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -47,11 +47,11 @@ const DocumentTable = () => {
 
   const fetchSignaturePreview = async () => {
     try {
-      const res = await fetch(`${import.meta.env.API}/officer/get-signature`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/officer/get-signature`, {
         credentials: "include"
       });
       const data = await res.json();
-      if (data.signature) setPreview(`${import.meta.env.API}${data.signature}`);
+      if (data.signature) setPreview(`${import.meta.env.VITE_API}${data.signature}`);
     } catch (err) {
       console.log(err.message)
     }
@@ -59,7 +59,7 @@ const DocumentTable = () => {
 
   const handleReject = async (id) => {
     // console.log(id)
-    await fetch(`${import.meta.env.API}/documents/${id}/reject`, { method: "PUT" });
+    await fetch(`${import.meta.env.VITE_API}/documents/${id}/reject`, { method: "PUT" });
     message.success("Document rejected");
     fetchDocs();
   };
@@ -70,7 +70,7 @@ const DocumentTable = () => {
     setUploading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.API}/officer/upload-signature`, {
+      const res = await fetch(`${import.meta.env.VITE_API}/officer/upload-signature`, {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -79,7 +79,7 @@ const DocumentTable = () => {
       if(!res.ok){
         throw new Error(result.message || "Upload failed");
       }
-      setPreview(`${import.meta.env.API}${result.signature}`);
+      setPreview(`${import.meta.env.VITE_API}${result.signature}`);
       message.success("Signature uploaded successfully!");
     } catch (err) {
       message.error(err.message);
@@ -91,7 +91,7 @@ const DocumentTable = () => {
   const handleDispatchSignature = async () => {
     if (!selectedDoc) return;
 
-    await fetch(`${import.meta.env.API}/documents/${selectedDoc._id}/sign`, {
+    await fetch(`${import.meta.env.VITE_API}/documents/${selectedDoc._id}/sign`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ signature: preview }),
@@ -104,7 +104,7 @@ const DocumentTable = () => {
   };
 
   const handlePreview = (record) => {
-    window.open(`${import.meta.env.API}/documents/${record._id}/preview`, "_blank");
+    window.open(`${import.meta.env.VITE_API}/documents/${record._id}/preview`, "_blank");
   };
 
   const openSignatureModal = (record) => {

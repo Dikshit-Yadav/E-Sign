@@ -23,7 +23,7 @@ const DocumentTable = () => {
   const fetchDocs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.API}/admin/documents`);
+      const res = await fetch(`${import.meta.env.VITE_API}/admin/documents`);
       const data = await res.json();
       setDocs(data);
       message.success("Documents loaded successfully");

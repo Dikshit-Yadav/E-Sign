@@ -13,7 +13,7 @@ function CourtDetails({ setIsLoggedIn }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${import.meta.env.API}/admin/courts/${id}/details`)
+    fetch(`${import.meta.env.VITE_API}/admin/courts/${id}/details`)
       .then((res) => res.json())
       .then((data) => setCourt(data.court))
       .catch((err) => console.error("Error fetching court:", err))
