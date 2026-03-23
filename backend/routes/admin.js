@@ -18,12 +18,12 @@ const {
 
 router.post("/courts", addCourts);
 router.get("/courts", cache("courts"),getCourts);
-router.get("/courts/:id",cache(`court:${req.params.id}`), courtId);
+router.get("/courts/:id",cache((req) =>`court:${req.params.id}`), courtId);
 router.get("/documents",cache("documents"),
   documents);
 router.delete("/courts/:id", deleteCourt);
 router.get("/users", getUsers);
-router.get("/courts/:id/details",cache("courtDetails:"+req.params.id), courtDetails);
+router.get("/courts/:id/details",cache((req) =>"courtDetails:"+req.params.id), courtDetails);
 router.post("/courts/:courtId/users", createAndAssignUser);
 
 
