@@ -3,7 +3,6 @@ const Document = require("../models/Document");
 const { Worker } = require("worker_threads");
 const User = require("../models/User");
 const Court = require("../models/Court");
-const redis = require("../redisClient");
 const FormData = require("form-data");
 const fs = require("fs");
 const fetch = require("node-fetch");
@@ -51,19 +50,10 @@ const getAllDocuments = async (req, res) => {
   try {
     const { userId } = req.query;
 
-    const cacheData = await redis.get(`documents:${userId}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
-
     const docs = await Document.find({ createdBy: userId })
       .populate("createdBy", "email role")
       .populate("signedBy", "email");
 
-    await redis.setEx(`documents:${userId}`, 60, JSON.stringify(docs));
     res.json(docs);
   } catch (err) {
     console.error("error fetching documents:", err);
@@ -75,20 +65,12 @@ const getDocumentById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const cacheData = await redis.get(`document:${id}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
     const doc = await Document.findById(id)
       .populate("createdBy", "email")
       .populate("signedBy", "email");
 
     if (!doc) return res.status(404).json({ message: "Document not found" });
 
-    await redis.setEx(`document:${id}`, 60, JSON.stringify(doc));
     res.json(doc);
   } catch (err) {
     console.error("error fetching document:", err);
@@ -137,11 +119,6 @@ const removeDocument = async (req, res) => {
     if (!doc) return res.status(404).json({ message: "document not found" });
 
     await doc.deleteOne();
-    
-    await redis.del(`document:${req.params.id}`);
-    await redis.del(`documents:${officerId}`);
-    await redis.del(`officer:${officerId}:docs`);
-    await redis.del("courts");
 
     res.json({ message: "document removed " });
   } catch (err) {
@@ -170,10 +147,6 @@ const signDocument = async (req, res) => {
       { new: true }
     ).populate("signedBy.officer", "name email")
       .populate("createdBy", "name email");
-
-    await redis.del(`documents:${officerId}`);
-    await redis.del(`document:${id}`);
-    await redis.del(`courts`);
 
     const doc = updatedDoc.toObject();
     const template = doc.templates[0];
@@ -219,16 +192,10 @@ const signDocument = async (req, res) => {
 const getDocumentPreview = async (req, res) => {
   try {
     const { id } = req.params;
+
     if (!id || id.length !== 24) {
       return res.status(400).json({ message: "Invalid document ID" });
     }
-
-    const cacheData = await redis.get(`preview:${id}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
 
     const doc = await Document.findById(id)
       .populate("createdBy", "name email")
@@ -236,20 +203,12 @@ const getDocumentPreview = async (req, res) => {
 
     if (!doc) return res.status(404).send("Document not found");
 
-    const template = doc.templates[0];
-    res.render("documentpreview", { doc, template }, async (err, html) => {
-      if (err) {
-        return res.status(500).send("Render error");
-      }
-    });
+    const template = doc.templates?.[0];
 
-    await redis.setEx(`preview:${id}`, 60, html);
-
-
-    res.send(html);
+    return res.render("documentpreview", { doc, template });
   } catch (err) {
     console.error("Error previewing document:", err);
-    res.status(500).send("Failed to preview document");
+    return res.status(500).send("Failed to preview document");
   }
 };
 
@@ -261,11 +220,6 @@ const rejectDocument = async (req, res) => {
     doc.status = "rejected";
     doc.rejectedDocuments += 1;
     await doc.save();
-
-    await redis.del(`document:${doc._id}`);
-    await redis.del(`documents:${doc.assignedOfficer}`);
-    await redis.del(`officer:${doc.assignedOfficer}:docs`);
-    await redis.del("courts");
 
     res.json({ message: "document rejected", doc });
   } catch (err) {
@@ -300,13 +254,6 @@ const getAllOfficers = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const cacheData = await redis.get(`officers:${id}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
     const doc = await Document.findById(id)
       .populate("createdBy", "name email")
       .populate("readers", "name email")
@@ -328,7 +275,6 @@ const getAllOfficers = async (req, res) => {
     if (doc.court.officers.length === 0) {
       return res.status(404).json({ message: "No officers found for this court" });
     }
-    await redis.setEx(`officers:${id}`, 60, JSON.stringify(doc.court.officers));
 
     res.json(doc.court.officers);
   } catch (err) {

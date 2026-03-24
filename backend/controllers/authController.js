@@ -5,12 +5,8 @@ const User = require("../models/User");
 const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    // console.log(req.body);
-    // const allUsers = await User.find({});
-    // console.log("All users in DB:", allUsers);
 
     const user = await User.findOne({ email });
-    // console.log(user)
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     if (user.password !== password) {

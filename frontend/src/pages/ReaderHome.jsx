@@ -23,7 +23,7 @@ function ReaderDashboard() {
   //   }
   // };
   const fetchDocs = async () => {
-  const userId = Cookies.get("userId");
+  const userId = localStorage.getItem("userId");
   if (!userId) {
     message.error("Missing user. Please login again.");
     return;

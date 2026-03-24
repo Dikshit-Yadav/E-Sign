@@ -10,7 +10,7 @@ const DocumentForm = ({ modelOpen, setModalOpen, fetchDocs }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const handleSubmit = async (values) => {
-    const userId = Cookies.get("userId");
+    const userId = localStorage.getItem("userId");
     if (!userId) {
       message.error("Missing user. Please login again.");
       return;
@@ -23,7 +23,7 @@ const DocumentForm = ({ modelOpen, setModalOpen, fetchDocs }) => {
 
     try {
       setSubmitLoading(true);
-      const res = await fetch(`${import.meta.env.VITE_API}/documents`, {
+      const res = await fetch("https://e-sign1.onrender.com/documents", {
         method: "POST",
         body: formData,
       });

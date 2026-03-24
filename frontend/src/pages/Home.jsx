@@ -54,9 +54,9 @@ const Home = ({ setIsLoggedIn }) => {
           key: index + 1,
           _id: c._id,
           courtName: c.courtName,
-          officers: c.officerCount || 0,
-          readers: c.readerCount || 0,
-          documents: c.documentsCount || 0,
+          officers: Number(c.officersCount) || 0,
+          readers: Number(c.readersCount) || 0,
+          documents: Number(c.documentsCount) || 0,
         }))
       );
     } catch (err) {

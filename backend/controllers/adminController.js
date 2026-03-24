@@ -1,5 +1,4 @@
 const express = require("express");
-const redis = require("../redisClient");
 const Court = require("../models/Court");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
@@ -9,15 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const documents = async (req, res) => {
   try {
-    const cacheData = await redis.get("documents");
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
     const docs = await Document.find();
-    await redis.setEx("documents", 60, JSON.stringify(docs));
     res.json(docs);
   } catch (err) {
     console.error("error fetching documents:", err);
@@ -47,30 +38,19 @@ const addCourts = async (req, res) => {
 
 const getCourts = async (req, res) => {
   try {
-    const cacheData = await redis.get("courts");
-    console.log(cacheData);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
-    const courts = await Court.aggregate([
-  {
-    $project: {
-      courtName: 1,
-      courtLocation: 1,
-      courtDesc: 1,
-      createdAt: 1,
-
-      officerCount: { $size: { $ifNull: ["$officers", []] } },
-      readerCount: { $size: { $ifNull: ["$readers", []] } },
-      documentsCount: { $size: { $ifNull: ["$documents", []] } }
-    }
-  }
-]);
-   await redis.setEx("courts", 60, JSON.stringify(courts));
-     res.json(courts);
+    const courts = await Court.find().populate("officers")
+      .populate("readers").populate("documents");
+const courtsWithCounts = courts.map(court => ({
+      _id: court._id,
+      courtName: court.courtName,
+      courtDesc: court.courtDesc,
+      courtLocation: court.courtLocation,
+      createdAt: court.createdAt,
+      officersCount: court.officers ? court.officers.length : 0,
+      readersCount: court.readers ? court.readers.length : 0,
+      documentsCount: court.documents ? court.documents.length : 0,
+    }));
+     res.json(courtsWithCounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -78,19 +58,11 @@ const getCourts = async (req, res) => {
 
 const courtId = async (req, res) => {
   try {
-    const cacheData = await redis.get(`court: ${req.params.id}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
-
     const court = await Court.findById(req.params.id)
       .populate("officers")
       .populate("readers");
 
     if (!court) return res.status(404).json({ message: "Court not found" });
-    await redis.setEx(`court: ${req.params.id}`, 60, JSON.stringify(court));
 
     res.json(court);
   } catch (err) {
@@ -104,11 +76,6 @@ const deleteCourt = async (req, res) => {
     const deletedCourt = await Court.findByIdAndDelete(id);
     if (!deletedCourt) return res.status(404).json({ message: "court not found" });
 
-    await redis.del([
-      "courts",
-      `court: ${id}`,
-      `courtDetails: ${id}`
-    ])
     res.json({ message: "court deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -134,12 +101,6 @@ const getUsers = async (req, res) => {
 const courtDetails = async (req, res) => {
   try {
     const {id} = req.params;
-    const cacheData = await redis.get(`courtDetails:${id}`);
-    if (cacheData) {
-      console.log("from cache");
-      return res.send(JSON.parse(cacheData));
-    }
-    console.log("redis miss")
     const court = await Court.findById(id)
       .populate("officers", "email role")
       .populate("readers", "email role");
@@ -154,9 +115,6 @@ const courtDetails = async (req, res) => {
         documents: docsCount,
       },
     }
-
-
-    await redis.setEx(`courtDetails:${id}`, 60, JSON.stringify(response));
     res.json();
   } catch (err) {
     res.status(500).json({ message: err.message });
