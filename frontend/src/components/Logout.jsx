@@ -10,7 +10,7 @@ function LogoutButton() {
     Cookies.remove("userId");
     Cookies.remove("role");
     localStorage.clear();
-    navigate("/auth/login");
+    // navigate("/auth/login");
     window.location.replace("/auth/login")
   };
 
