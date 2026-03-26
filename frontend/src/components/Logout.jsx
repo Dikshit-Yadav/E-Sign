@@ -10,8 +10,8 @@ function LogoutButton() {
     Cookies.remove("userId");
     Cookies.remove("role");
     localStorage.clear();
-    window.location.reload();
     navigate("/auth/login");
+    window.location.reload();
   };
 
   return (
