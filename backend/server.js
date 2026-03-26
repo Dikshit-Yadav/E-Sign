@@ -20,14 +20,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cookieParser());
 
 app.use(authRoutes);
-app.use("/auth", authRoutes);
+// app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", user);
 app.use("/documents", documentsRoute);
 app.use("/officer", officer);
 
 app.get("/", (req, res) => {
-    res.redirect("/auth/login");
+    res.send("home page");
 })
 
 mongoose.connect(process.env.MongoDB_URL, {
