@@ -30,7 +30,7 @@ console.log(userId)
 
   const handleLogout = useCallback(async () => {
   try {
-    const res = await fetch("https://e-sign1.onrender.com/logout", {
+    const res = await fetch("https://e-sign1.onrender.com/auth/logout", {
       method: "POST",
       credentials: "include",
     });
