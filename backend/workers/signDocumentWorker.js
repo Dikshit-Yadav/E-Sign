@@ -104,7 +104,7 @@ async function sendMail() {
     // console.log(html);
     const transporter = nodemailer.createTransport(emailConfig);
     await transporter.sendMail({
-      from: `"Court E-Sign" <${emailConfig.user}>`,
+      from: `"Court E-Sign" <${emailConfig.auth.user}>`,
       to: doc.createdBy.email,
       subject: `Your Document Signed`,
       html,
