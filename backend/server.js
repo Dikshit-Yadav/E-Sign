@@ -20,7 +20,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cookieParser());
 
 app.use(authRoutes);
-// app.use("/auth", authRoutes);
+app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", user);
 app.use("/documents", documentsRoute);
