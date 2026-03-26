@@ -11,7 +11,7 @@ function LogoutButton() {
     Cookies.remove("role");
     localStorage.clear();
     navigate("/auth/login");
-    window.location.reload();
+    window.location.replace("/auth/login")
   };
 
   return (
