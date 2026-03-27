@@ -64,7 +64,7 @@ console.log(userId)
       Cookies.remove("token");
       Cookies.remove("role");
       Cookies.remove("userId");
-      localStorage.removeItem("userId").
+      localStorage.removeItem("userId");
       message.success("Logged out successfully");
       window.location.href = "/auth/login"; 
     } else {
