@@ -45,18 +45,21 @@ const logout = (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      sameSite: "strict",
-      secure: false,
+      secure: true,
+      sameSite: "None",
+      path: "/"
     });
     res.clearCookie("role", {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: false,
+     httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/"
     });
     res.clearCookie("userId", {
       httpOnly: true,
-      sameSite: "strict",
-      secure: false,
+      secure: true,
+      sameSite: "None",
+      path: "/"
     });
 
     res.status(200).json({ message: "Logged out successfully" });
