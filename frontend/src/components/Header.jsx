@@ -61,6 +61,7 @@ console.log(userId)
 
     if (res.ok) {
       setIsLoggedIn(false);
+      localStorage.removeItem("userId").
       message.success("Logged out successfully");
       window.location.href = "/auth/login"; 
     } else {
