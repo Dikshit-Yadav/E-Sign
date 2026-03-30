@@ -251,10 +251,12 @@ npm start
 
 ## 🌐 Future Improvements
 
-* Real-time collaboration on documents
-* Multiple signer support
-* Audit trail for signatures
-* Cloud storage integration (AWS S3)
+* Role-based Super Admin panel
+  * Manage all courts globally
+  * Monitor system-wide analytics
+  * Control Admin access & permissions
+* Real-time notifications (Socket.IO)
+* Document version history
 
 ---
 
