@@ -9,9 +9,9 @@ function LogoutButton() {
     Cookies.remove("token");
     Cookies.remove("userId");
     Cookies.remove("role");
-    localStorage.clear();
-    window.location.reload();
-    navigate("/auth/login");
+    // navigate("/auth/login");
+   localStorage.clear()
+window.location.href = "/auth/login"
   };
 
   return (

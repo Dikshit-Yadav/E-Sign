@@ -5,6 +5,8 @@ const nodemailer = require("nodemailer");
 const Document = require("../models/Document");
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
+const sendMail = require("../utils/sendMail");
+
 
 const documents = async (req, res) => {
   try {
@@ -40,7 +42,7 @@ const getCourts = async (req, res) => {
   try {
     const courts = await Court.find().populate("officers")
       .populate("readers").populate("documents");
-const courtsWithCounts = courts.map(court => ({
+    const courtsWithCounts = courts.map(court => ({
       _id: court._id,
       courtName: court.courtName,
       courtDesc: court.courtDesc,
@@ -50,7 +52,7 @@ const courtsWithCounts = courts.map(court => ({
       readersCount: court.readers ? court.readers.length : 0,
       documentsCount: court.documents ? court.documents.length : 0,
     }));
-     res.json(courtsWithCounts);
+    res.json(courtsWithCounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -100,7 +102,7 @@ const getUsers = async (req, res) => {
 
 const courtDetails = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const court = await Court.findById(id)
       .populate("officers", "email role")
       .populate("readers", "email role");
@@ -162,14 +164,7 @@ const createAndAssignUser = async (req, res) => {
     // console.log("assign Court",newUser.court)
     await court.save();
     await newUser.save();
-
-    // console.log("new user data", newUser)
-    try {
-      await resend.emails.send({
-        from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
-        to: newUser.email,
-        subject: `You have been assigned as ${role}`,
-        html: `
+    let template = `
         <h3>Hello ${newUser.name || "Officer"},</h3>
         <p>You have been assigned as an <b>${role}</b> to the court:</p>
         <ul>
@@ -179,8 +174,10 @@ const createAndAssignUser = async (req, res) => {
         </ul>
         <p>Please log in to the system to access your account.</p>
         <p>If you didn't request this, please ignore this email.</p>
-      `,
-      });
+      `;
+    // console.log("new user data", newUser)
+    try {
+      await sendMail(newUser.email, `You have been assigned as ${role}`, template);
     } catch (emailErr) {
       console.error("Email send failed:", emailErr);
     }
