@@ -27,7 +27,7 @@ app.use("/documents", documentsRoute);
 app.use("/officer", officer);
 
 app.get("/", (req, res) => {
-    res.redirect("/auth/login");
+    res.send("home page");
 })
 
 mongoose.connect(process.env.MongoDB_URL, {

@@ -164,7 +164,14 @@ const createAndAssignUser = async (req, res) => {
     // console.log("assign Court",newUser.court)
     await court.save();
     await newUser.save();
-    let template = `
+
+    // console.log("new user data", newUser)
+    try {
+      await resend.emails.send({
+        from: `"Court E-Sign" <${process.env.EMAIL_USER}>`,
+        to: newUser.email,
+        subject: `You have been assigned as ${role}`,
+        html: `
         <h3>Hello ${newUser.name || "Officer"},</h3>
         <p>You have been assigned as an <b>${role}</b> to the court:</p>
         <ul>

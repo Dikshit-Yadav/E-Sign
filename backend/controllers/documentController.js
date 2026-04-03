@@ -151,19 +151,43 @@ const signDocument = async (req, res) => {
     const doc = updatedDoc.toObject();
     const template = doc.templates[0];
 
+    // const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
+    //   workerData: {
+    //     doc,
+    //     template,
+    //     emailConfig: {
+    //       service: "gmail",
+    //       auth: {
+    //         user: process.env.EMAIL_USER,
+    //         pass: process.env.EMAIL_PASS
+    //       }
+    //     },
+    //   },
+    // });
+
     const worker = new Worker(path.join(__dirname, "../workers/signDocumentWorker.js"), {
-      workerData: {
-        doc,
-        template,
-        emailConfig: {
-          service: "gmail",
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-          }
-        },
+  workerData: {
+    doc,
+    template,
+    emailConfig: {
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // Use Port 465 for "Implicit TLS"
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       },
-    });
+      tls: {
+        // This tells Node.js not to fail if the certificate has slight 
+        // mismatches, which is common in cloud-to-cloud communication.
+        rejectUnauthorized: false,
+        // Ensure we use modern TLS versions
+        minVersion: 'TLSv1.2' 
+      },
+      connectionTimeout: 10000, // 10 seconds
+    },
+  },
+});
 
     worker.on("message", (msg) => {
       if (!msg.success) {
