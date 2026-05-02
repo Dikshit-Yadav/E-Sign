@@ -172,19 +172,16 @@ const signDocument = async (req, res) => {
     emailConfig: {
       host: "smtp.gmail.com",
       port: 465,
-      secure: true, // Use Port 465 for "Implicit TLS"
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
       tls: {
-        // This tells Node.js not to fail if the certificate has slight 
-        // mismatches, which is common in cloud-to-cloud communication.
         rejectUnauthorized: false,
-        // Ensure we use modern TLS versions
         minVersion: 'TLSv1.2' 
       },
-      connectionTimeout: 10000, // 10 seconds
+      connectionTimeout: 10000,
     },
   },
 });

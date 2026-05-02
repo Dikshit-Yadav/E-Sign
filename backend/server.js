@@ -5,13 +5,11 @@ const app = express();
 const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 const path = require("path");
-const authMiddleware = require("./middlewares/authMiddleware.js");
 const authRoutes = require('./routes/auth.js');
 const adminRoutes = require("./routes/admin");
 const documentsRoute = require("./routes/documents");
 const user = require("./routes/user.js")
 const officer = require("./routes/officer.js")
-
 app.use(cors({ origin: 'https://e-sign-vl9f.onrender.com', credentials: true, }));
 app.use(express.json());
 app.set("view engine", "ejs");

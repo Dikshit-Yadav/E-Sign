@@ -17,7 +17,7 @@
 
 ---
 
-### 👨‍💼 Admin Panel
+###  Admin Panel
 
 * Add and manage courts
 * Assign Readers and Officers to courts
@@ -31,7 +31,7 @@
 
 ---
 
-### 🧑‍💻 Reader (User) Features
+###  Reader (User) Features
 
 * Create document requests
 * Fill forms and submit for signature
@@ -43,7 +43,7 @@
 
 ---
 
-### 👮 Officer Features
+### Officer Features
 
 * View assigned document requests
 * Verify document details
@@ -53,7 +53,7 @@
 
 ---
 
-### 📄 Document Management
+###  Document Management
 
 * Upload documents
 * View and manage uploaded files
@@ -61,7 +61,7 @@
 
 ---
 
-### ✍️ Digital Signature
+###  Digital Signature
 
 * Add digital signatures to documents
 * Position signature on document
@@ -69,14 +69,14 @@
 
 ---
 
-### 📧 Email Integration
+###  Email Integration
 
 * Send documents via email
 * Notifications using Nodemailer
 
 ---
 
-### 🛡️ Security Features
+###  Security Features
 
 * Protected routes
 * Input validation
@@ -84,9 +84,9 @@
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
-* **Frontend:** EJS, HTML, CSS, JavaScript
+* **Frontend:** EJS, HTML, CSS, JavaScript, React, Ant Design
 * **Backend:** Node.js, Express.js
 * **Database:** MongoDB
 * **Authentication:** JWT
@@ -95,7 +95,7 @@
 
 ---
 
-## 📂 Project Folder Structure
+##  Project Folder Structure
 
 ```bash
 esign/
@@ -196,7 +196,7 @@ esign/
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
 ### 1. Clone the repository
 
@@ -232,7 +232,7 @@ npm start
 
 ---
 
-## ▶️ Usage
+##  Usage
 
 1. Login with role
 2. Create a document request
@@ -243,13 +243,13 @@ npm start
 
 ---
 
-## 📸 Screenshots
+##  Screenshots
 
 (Add screenshots here)
 
 ---
 
-## 🌐 Future Improvements
+##  Future Improvements
 
 * Role-based Super Admin panel
   * Manage all courts globally
@@ -260,20 +260,20 @@ npm start
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome!
 Feel free to fork this repo and submit a pull request.
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 Dikshit Yadav
 Full-Stack MERN Developer
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License.

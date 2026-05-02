@@ -26,37 +26,14 @@ console.log(userId)
           setUserName("User");
         });
     }
-  }, []);
-
-//   const handleLogout = useCallback(async () => {
-//   try {
-//     const res = await fetch("https://e-sign1.onrender.com/auth/logout", {
-//       method: "POST",
-//       credentials: "include",
-//     });
-
-//     if (res.ok) {
-//       Cookies.remove("token");
-//       Cookies.remove("role");
-//       Cookies.remove("userId");
-
-//       setIsLoggedIn(false);
-//       message.success("Logged out successfully");
-//       navigate("/auth/login");
-//     } else {
-//       message.error("Failed to log out");
-//     }
-//   } catch (err) {
-//     console.error("Logout error:", err);
-//     message.error("Server error while logging out");
-//   }
-// }, [navigate, setIsLoggedIn]);
+  }, [userId]);
 
   const handleLogout = useCallback(async () => {
   try {
     const res = await fetch("https://e-sign1.onrender.com/auth/logout", { 
+    // const res = await fetch("http://localhost:4500/auth/logout", { 
       method: "POST",
-      credentials: "include", // required for cookies
+      credentials: "include",
     });
 
     if (res.ok) {

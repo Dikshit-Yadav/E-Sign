@@ -34,9 +34,9 @@ const DocumentTable = () => {
           "Content-Type": "application/json",
         },
       });
-      console.log("res", res);
+      // console.log("res", res);
       const data = await res.json();
-      console.log("data", data)
+      // console.log("data", data)
       setDocs(data);
     } catch {
       message.error("Failed to load documents");
@@ -53,7 +53,7 @@ const DocumentTable = () => {
       const data = await res.json();
       if (data.signature) setPreview(`${import.meta.env.VITE_API}${data.signature}`);
     } catch (err) {
-      console.log(err.message)
+      console.log(err.message.data)
     }
   };
 

@@ -3,8 +3,6 @@ const Court = require("../models/Court");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const Document = require("../models/Document");
-const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
 const sendMail = require("../utils/sendMail");
 
 
@@ -40,19 +38,21 @@ const addCourts = async (req, res) => {
 
 const getCourts = async (req, res) => {
   try {
-    const courts = await Court.find().populate("officers")
-      .populate("readers").populate("documents");
-    const courtsWithCounts = courts.map(court => ({
-      _id: court._id,
-      courtName: court.courtName,
-      courtDesc: court.courtDesc,
-      courtLocation: court.courtLocation,
-      createdAt: court.createdAt,
-      officersCount: court.officers ? court.officers.length : 0,
-      readersCount: court.readers ? court.readers.length : 0,
-      documentsCount: court.documents ? court.documents.length : 0,
-    }));
-    res.json(courtsWithCounts);
+    const courts = await Court.aggregate([
+      {
+        $project: {
+          courtName: 1,
+          courtDesc: 1,
+          courtLocation: 1,
+          createdAt: 1,
+          officersCount: { $size: { $ifNull: ["$officers", []] } },
+          readersCount: { $size: { $ifNull: ["$readers", []] } },
+          documentsCount: { $size: { $ifNull: ["$documents", []] } },
+        }
+      }
+    ]);
+
+    res.json(courts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

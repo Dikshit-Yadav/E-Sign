@@ -4,9 +4,11 @@ const User = require("../models/User");
 
 const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
+    const role = user.role;
+    console.log(role)
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     if (user.password !== password) {
@@ -14,12 +16,12 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    if (user.role !== role) {
-      return res.status(403).json({ message: "Role mismatch" });
-    }
+    // if (user.role !== role) {
+    //   return res.status(403).json({ message: "Role mismatch" });
+    // }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -33,7 +35,7 @@ const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, role: role }
     });
   } catch (err) {
     console.log(err)
@@ -47,19 +49,16 @@ const logout = (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "None",
-      path: "/"
     });
     res.clearCookie("role", {
      httpOnly: true,
       secure: true,
       sameSite: "None",
-      path: "/"
     });
     res.clearCookie("userId", {
       httpOnly: true,
       secure: true,
       sameSite: "None",
-      path: "/"
     });
 
     res.status(200).json({ message: "Logged out successfully" });

@@ -18,7 +18,7 @@ const Login = ({ setIsLoggedIn }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.role) {
+    if (!formData.email || !formData.password) {
       return message.error("All fields are required!");
     }
 
@@ -105,16 +105,7 @@ const Login = ({ setIsLoggedIn }) => {
             onChange={(e) => handleChange("password", e.target.value)}
             className="input"
           />
-          <select
-            value={formData.role}
-            onChange={(e) => handleChange("role", e.target.value)}
-            className="input"
-          >
-            <option value="">Select Role</option>
-            <option value="admin">Admin</option>
-            <option value="officer">Officer</option>
-            <option value="reader">Reader</option>
-          </select>
+          
           <Button type="primary" htmlType="submit" loading={loading} block style={{ marginTop: 10 }}>
             Login
           </Button>
