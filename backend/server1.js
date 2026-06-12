@@ -45,6 +45,6 @@ mongoose.connect(process.env.MongoDB_URL, {
     });
     
 
-app.listen(process.env.PORT, () => {
-    console.log(`http://localhost:${process.env.PORT}`);
+app.listen(process.env.PORT1, () => {
+    console.log(`http://localhost:${process.env.PORT1}`);
 })

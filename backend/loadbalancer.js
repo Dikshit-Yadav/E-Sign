@@ -6,9 +6,9 @@ const app = express();
 const proxy = httpProxy.createProxyServer();
 
 const servers = [
-  `http://localhost:${process.env.PORT1}`,
-  `http://localhost:${process.env.PORT2}`,
-  `http://localhost:${process.env.PORT3}`
+  process.env.SERVER1_URL,
+  process.env.SERVER2_URL,
+  process.env.SERVER3_URL
 ];
 
 let current = 0;
