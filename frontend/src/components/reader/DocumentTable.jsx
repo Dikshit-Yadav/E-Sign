@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import TemplateForm from "./TemplateForm";
 import { Table, Dropdown, Menu, Button, message, Form, Tag, Select, Popconfirm, Spin } from "antd";
 import { DownOutlined } from "@ant-design/icons";
@@ -18,7 +18,6 @@ const DocumentTable = ({ docs, refreshDocs }) => {
   const [officerDropdown, setOfficerDropdown] = useState(null);
   const [loadingOfficers, setLoadingOfficers] = useState(false);
   // const [sentForSignature, setSentForSignature] = useState({});
-
   // const fetchDocs = async () => {
   //   try {
   //     const userId = Cookies.get("userId");
@@ -351,7 +350,7 @@ const DocumentTable = ({ docs, refreshDocs }) => {
 
   return (
     <>
-      <Table dataSource={docs} columns={columns} rowKey="_id" />
+      <Table dataSource={docs || []} columns={columns} rowKey="_id" />
 
       <TemplateForm
         visible={isModalVisible}

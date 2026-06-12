@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 import ProtectedRoute from "./components/ProtectedRouteWrapper";
@@ -11,132 +10,36 @@ import CourtDetails from "./pages/CourtDetails";
 import DocumentPreview from "./pages/DocumentPreview";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
-
-  useEffect(() => {
-    const token = Cookies.get("token");
-    const userRole = Cookies.get("role");
-
-    if (token && userRole) {
-      setIsLoggedIn(true);
-      setRole(userRole);
-    } else {
-      setIsLoggedIn(false);
-      setRole(null);
-    }
-
-    setLoadingAuth(false);
-  }, []);
-
-  if (loadingAuth) return <div>Loading...</div>;
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/auth/login"
-          element={
-            isLoggedIn ? (
-              role === "reader" ? (
-                <Navigate to="/reader-dashboard" />
-              ) : role === "officer" ? (
-                <Navigate to="/officer-dashboard" />
-              ) : (
-                <Navigate to="/home" />
-              )
-            ) : (
-              <Login setIsLoggedIn={setIsLoggedIn} />
-            )
-          }
-        />
 
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              role={role}
-              loading={loadingAuth}
-              allowedRoles={["admin"]}
-            >
-              <Home setIsLoggedIn={setIsLoggedIn} />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/auth/login" element={<Login />} />
 
-        <Route
-          path="/officer-dashboard"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              role={role}
-              loading={loadingAuth}
-              allowedRoles={["officer"]}
-            >
-              <OfficerHome />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/courts/:id" element={<CourtDetails />} />
+        </Route>
 
-        <Route
-          path="/reader-dashboard"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              role={role}
-              loading={loadingAuth}
-              allowedRoles={["reader"]}
-            >
-              <ReaderDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute allowedRoles={["officer"]} />}>
+          <Route path="/officer-dashboard" element={<OfficerHome />} />
+        </Route>
 
-        <Route
-          path="/courts/:id"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              role={role}
-              loading={loadingAuth}
-              allowedRoles={["admin"]}
-            >
-              <CourtDetails />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute allowedRoles={["reader"]} />}>
+          <Route path="/reader-dashboard" element={<ReaderDashboard />} />
+        </Route>
 
         <Route
           path="/documents/:id/preview"
           element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              role={role}
-              loading={loadingAuth}
-              allowedRoles={["admin", "officer", "reader"]}
-            >
-              <DocumentPreview />
-            </ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin", "officer", "reader"]} />
           }
-        />
+        >
+          <Route index element={<DocumentPreview />} />
+        </Route>
 
-        <Route
-          path="/"
-          element={
-            isLoggedIn ? (
-              role === "reader" ? (
-                <Navigate to="/reader-dashboard" />
-              ) : role === "officer" ? (
-                <Navigate to="/officer-dashboard" />
-              ) : (
-                <Navigate to="/home" />
-              )
-            ) : (
-              <Navigate to="/auth/login" />
-            )
-          }
-        />
+        <Route path="/" element={<Navigate to="/auth/login" />} />
+
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-// require('dotenv').config()
+require('dotenv').config()
 const express = require("express");
 const cors = require('cors');
 const app = express();
@@ -9,13 +9,19 @@ const authRoutes = require('./routes/auth.js');
 const adminRoutes = require("./routes/admin");
 const documentsRoute = require("./routes/documents");
 const user = require("./routes/user.js")
-const officer = require("./routes/officer.js")
-app.use(cors({ origin: 'https://e-sign-vl9f.onrender.com', credentials: true, }));
+const officer = require("./routes/officer.js");
+const { error } = require("console");
+app.use(cors({ origin: 'http://localhost:5173', credentials: true, }));
 app.use(express.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cookieParser());
+
+app.use((req,res,next,error)=>{
+    console.log("server2 req:", req);
+    next();
+});
 
 app.use(authRoutes);
 app.use("/auth", authRoutes);
@@ -39,6 +45,6 @@ mongoose.connect(process.env.MongoDB_URL, {
         console.log("error", err)
     });
 
-app.listen(process.env.PORT, () => {
-    console.log(`http://localhost:${process.env.PORT}`);
+app.listen(process.env.PORT2, () => {
+    console.log(`http://localhost:${process.env.PORT2}`);
 })

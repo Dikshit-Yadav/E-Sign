@@ -32,6 +32,12 @@ const Login = ({ setIsLoggedIn }) => {
       });
 
       const result = await res.json();
+      const role = result.user.role;
+
+
+      if (role === "admin") navigate("/home", { replace: true });
+      else if (role === "officer") navigate("/officer-dashboard", { replace: true });
+      else if (role === "reader") navigate("/reader-dashboard", { replace: true });
 
       if (!res.ok) {
         message.error(result.message || "Login failed");
@@ -39,27 +45,12 @@ const Login = ({ setIsLoggedIn }) => {
       }
 
       message.success("Login successful!");
-      localStorage.setItem("userId", result.user.id);
-      Cookies.set("token", result.token, {
-        expires: 1,
-        secure: true,
-        sameSite: "None"
-      });
-      Cookies.set("role", result.user.role, { expires: 1 });
-      Cookies.set("userId", result.user.id, { expires: 1 });
 
 
       setIsLoggedIn(true);
 
-      setTimeout(() => {
-        if (result.user.role === "reader") {
-          navigate("/reader-dashboard");
-        } else if (result.user.role === "officer") {
-          navigate("/officer-dashboard");
-        } else {
-          navigate("/home");
-        }
-      }, 50);
+
+
     } catch (err) {
       message.error(err.message || "Login error");
     } finally {
@@ -105,7 +96,7 @@ const Login = ({ setIsLoggedIn }) => {
             onChange={(e) => handleChange("password", e.target.value)}
             className="input"
           />
-          
+
           <Button type="primary" htmlType="submit" loading={loading} block style={{ marginTop: 10 }}>
             Login
           </Button>

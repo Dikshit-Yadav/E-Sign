@@ -10,38 +10,38 @@ const { Text } = Typography;
 function Header({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
- const userId = localStorage.getItem("userId");
+ const userId = JSON.parse(sessionStorage.getItem("user"));
+//  console.log(userId)
   useEffect(() => {
-    const token = Cookies.get("token");
-    // const userId = Cookies.get("userId");
-console.log(userId)
-    if (token && userId) {
-      fetch(`${import.meta.env.VITE_API}/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then((res) => res.json())
-        .then((data) => setUserName(data?.name || "User"))
-        .catch((err) => {
-          console.error("Failed to fetch user:", err);
-          setUserName("User");
-        });
-    }
-  }, [userId]);
+
+  if (userId) {
+    fetch(`${import.meta.env.VITE_API}/users/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setUserName(data?.name || "User"))
+      .catch((err) => {
+        console.error("Failed to fetch user:", err);
+        setUserName("User");
+      });
+  }
+}, [userId]);
 
   const handleLogout = useCallback(async () => {
   try {
-    const res = await fetch("https://e-sign1.onrender.com/auth/logout", { 
-    // const res = await fetch("http://localhost:4500/auth/logout", { 
+    // const res = await fetch(`${import.meta.env.VITE_API}/auth/logout`, { 
+    const res = await fetch(`${import.meta.env.VITE_API}/auth/logout`, { 
       method: "POST",
       credentials: "include",
     });
 
     if (res.ok) {
       setIsLoggedIn(false);
-      Cookies.remove("token");
-      Cookies.remove("role");
-      Cookies.remove("userId");
-      localStorage.removeItem("userId");
+      // Cookies.remove("token");
+      // Cookies.remove("role");
+      // Cookies.remove("userId");
+      sessionStorage.removeItem("userId");
       message.success("Logged out successfully");
       window.location.href = "/auth/login"; 
     } else {

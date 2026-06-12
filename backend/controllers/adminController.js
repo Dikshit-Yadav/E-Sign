@@ -1,4 +1,5 @@
 const express = require("express");
+const redis = require("../redisClient");
 const Court = require("../models/Court");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
@@ -8,7 +9,15 @@ const sendMail = require("../utils/sendMail");
 
 const documents = async (req, res) => {
   try {
+    const cacheData = await redis.get("documents");
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
     const docs = await Document.find();
+    await redis.setEx("documents", 60, JSON.stringify(docs));
     res.json(docs);
   } catch (err) {
     console.error("error fetching documents:", err);
@@ -38,6 +47,13 @@ const addCourts = async (req, res) => {
 
 const getCourts = async (req, res) => {
   try {
+    const cacheData = await redis.get("courts");
+    console.log(cacheData);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
     const courts = await Court.aggregate([
       {
         $project: {
@@ -52,7 +68,8 @@ const getCourts = async (req, res) => {
       }
     ]);
 
-    res.json(courts);
+    await redis.setEx("courts", 60, JSON.stringify(courts));
+     res.json(courts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -60,11 +77,19 @@ const getCourts = async (req, res) => {
 
 const courtId = async (req, res) => {
   try {
+    const cacheData = await redis.get(`court: ${req.params.id}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
+
     const court = await Court.findById(req.params.id)
       .populate("officers")
       .populate("readers");
 
     if (!court) return res.status(404).json({ message: "Court not found" });
+    await redis.setEx(`court: ${req.params.id}`, 60, JSON.stringify(court));
 
     res.json(court);
   } catch (err) {
@@ -102,7 +127,13 @@ const getUsers = async (req, res) => {
 
 const courtDetails = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {id} = req.params;
+    const cacheData = await redis.get(`courtDetails:${id}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
     const court = await Court.findById(id)
       .populate("officers", "email role")
       .populate("readers", "email role");
@@ -117,6 +148,9 @@ const courtDetails = async (req, res) => {
         documents: docsCount,
       },
     }
+
+
+    await redis.setEx(`courtDetails:${id}`, 60, JSON.stringify(response));
     res.json();
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -1,6 +1,7 @@
 const Document = require("../models/Document");
 const User = require("../models/User");
 const path = require("path");
+const redis = require("../redisClient");
 const fs = require("fs");
 const sharp = require("sharp");
 const axios = require("axios");
@@ -9,11 +10,16 @@ const FormData = require("form-data");
 const getOfficerDocuments = async (req, res) => {
   try {
     const officerId = req.cookies.userId;
-    
+    const cacheData = await redis.get(`documents:${officerId}`);
+    if (cacheData) {
+      console.log("from cache");
+      return res.send(JSON.parse(cacheData));
+    }
+    console.log("redis miss")
     const docs = await Document.find({ assignedOfficer: officerId })
       .populate("createdBy", "name email")
       .sort({ updatedAt: -1 });
-
+      await redis.setEx(`documents:${officerId}`, 60, JSON.stringify(docs));
     res.json(docs);
   } catch (err) {
     console.log(err)

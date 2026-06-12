@@ -6,12 +6,12 @@ function LogoutButton() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    Cookies.remove("token");
-    Cookies.remove("userId");
-    Cookies.remove("role");
+    // Cookies.remove("token");
+    // Cookies.remove("userId");
+    // Cookies.remove("role");
     // navigate("/auth/login");
-   localStorage.clear()
-window.location.href = "/auth/login"
+    sessionStorage.clear()
+    window.location.href = "/auth/login"
   };
 
   return (

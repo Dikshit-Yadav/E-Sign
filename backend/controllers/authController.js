@@ -7,9 +7,10 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(500).json({ message: "user not found" });
+    }
     const role = user.role;
-    console.log(role)
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     if (user.password !== password) {
       console.log("Incorrect password");
@@ -26,11 +27,20 @@ const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.cookie("userId", user._id.toString(), {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "None",
+      path: "/",
       maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.cookie("userId", user._id.toString(), {
+      httpOnly: false
+    });
+
+    res.cookie("role", role, {
+      httpOnly: false
     });
 
     res.json({
@@ -43,6 +53,20 @@ const login = async (req, res) => {
   }
 }
 
+const isme = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+      isauthenticate: false,
+    });
+  }
+
+  res.json({
+    user: req.user,
+    isauthenticate: true
+  });
+};
+
 const logout = (req, res) => {
   try {
     res.clearCookie("token", {
@@ -51,7 +75,7 @@ const logout = (req, res) => {
       sameSite: "None",
     });
     res.clearCookie("role", {
-     httpOnly: true,
+      httpOnly: true,
       secure: true,
       sameSite: "None",
     });
@@ -67,4 +91,4 @@ const logout = (req, res) => {
   }
 };
 
-module.exports = { login, logout };
+module.exports = { login, logout, isme };

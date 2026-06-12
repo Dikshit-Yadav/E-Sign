@@ -23,7 +23,7 @@ function ReaderDashboard() {
   //   }
   // };
   const fetchDocs = async () => {
-  const userId = localStorage.getItem("userId");
+   const userId = JSON.parse(sessionStorage.getItem("user"));
   if (!userId) {
     message.error("Missing user. Please login again.");
     return;
@@ -32,6 +32,7 @@ function ReaderDashboard() {
   try {
     const res = await fetch(`${import.meta.env.VITE_API}/documents?userId=${userId}`);
     const data = await res.json();
+    // console.log(data)
     setDocs(Array.isArray(data) ? data : []);
   } catch (err) {
     message.error("Could not load documents");

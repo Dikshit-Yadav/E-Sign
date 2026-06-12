@@ -15,6 +15,6 @@ if (cluster.isPrimary) {
         cluster.fork();
     });
 } else {
-    require("./server");
+    require("./loadbalancer");
     console.log(`Worker ${process.pid} started`);
 }   
