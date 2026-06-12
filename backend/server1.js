@@ -10,7 +10,7 @@ const adminRoutes = require("./routes/admin");
 const documentsRoute = require("./routes/documents");
 const user = require("./routes/user.js")
 const officer = require("./routes/officer.js")
-app.use(cors({ origin: 'http://localhost:5173', credentials: true, }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true, }));
 app.use(express.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -43,6 +43,7 @@ mongoose.connect(process.env.MongoDB_URL, {
     .catch((err) => {
         console.log("error", err)
     });
+    
 
 app.listen(process.env.PORT1, () => {
     console.log(`http://localhost:${process.env.PORT1}`);

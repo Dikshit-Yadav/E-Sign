@@ -1,5 +1,5 @@
 const express = require("express");
-const redis = require("../redisClient");
+const redis = require("../cache/redisClient");
 const Court = require("../models/Court");
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
