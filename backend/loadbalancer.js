@@ -5,35 +5,27 @@ const httpProxy = require("http-proxy");
 const app = express();
 const proxy = httpProxy.createProxyServer();
 
-const servers = [
-  process.env.SERVER1_URL,
-  process.env.SERVER2_URL,
-  process.env.SERVER3_URL
-];
+const authService = process.env.SERVER1_URL;
+const documentService = process.env.SERVER2_URL;
+const officerService = process.env.SERVER3_URL;
 
-let current = 0;
+// Server 1 auth / admin / users
+app.use(["/auth", "/admin", "/users"], (req, res) => {
+  proxy.web(req, res, { target: authService });
+});
+
+// server 2 documents
+app.use("/documents", (req, res) => {
+  proxy.web(req, res, { target: documentService });
+});
+
+// server 3 officers
+app.use("/officers", (req, res) => {
+  proxy.web(req, res, { target: officerService });
+});
 
 proxy.on("error", (err, req, res) => {
   console.error("Proxy Error:", err.message);
-
-  res.writeHead(500, {
-    "Content-Type": "text/plain"
-  });
-
-  res.end("Proxy error");
-});
-
-app.use((req, res) => {
-  
-  const target = servers[current];
-
-  current = (current + 1) % servers.length;
-
-  console.log(`Forwarding to ${target}`);
-
-  proxy.web(req, res, {
-    target
-  });
 });
 
 app.listen(process.env.PORT, () => {

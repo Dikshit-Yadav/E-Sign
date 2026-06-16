@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { throttle } from "lodash";
 import { Modal, Input, Select, Button, Form, message } from "antd";
 import { UserOutlined, SafetyOutlined, ReadOutlined } from "@ant-design/icons";
+import { assignUserToCourt } from "../../services/courtServices";
 
 const { Option } = Select;
 
@@ -11,28 +12,27 @@ const AddUserCourtModal = ({ isOpen, setIsOpen, courtId, onUserAdded }) => {
 
   const request = async (values) => {
     setLoading(true);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API}/admin/courts/${courtId}/users`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
-      );
-      const result = await res.json();
 
-      if (res.ok) {
-        message.success(`${values.role} created & assigned successfully`);
-        form.resetFields();
-        onUserAdded && onUserAdded();
-        setIsOpen(false);
-      } else {
-        message.error(result.message || "Error assigning user");
-      }
-    } catch (err) {
-      console.error(err);
-      message.error("Server error while assigning user");
+    try {
+      await assignUserToCourt(
+        courtId,
+        values
+      );
+
+      message.success(
+        `${values.role} created & assigned successfully`
+      );
+
+      form.resetFields();
+
+      onUserAdded?.();
+
+      setIsOpen(false);
+    } catch (error) {
+      message.error(
+        error.response?.data?.message ||
+        "Error assigning user"
+      );
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ const AddUserCourtModal = ({ isOpen, setIsOpen, courtId, onUserAdded }) => {
   );
 
   const handleSubmit = useCallback(
-    (values)=> {
+    (values) => {
       throttleSubmit(values);
     }, [throttleSubmit]
   );
@@ -58,7 +58,9 @@ const AddUserCourtModal = ({ isOpen, setIsOpen, courtId, onUserAdded }) => {
       form.resetFields();
       throttleSubmit.cancel();
     }
-  }, [isOpen]);
+
+    return () => throttleSubmit.cancel();
+  }, [isOpen, form, throttleSubmit]);
 
   return (
     <Modal

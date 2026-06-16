@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import { login } from "../services/authService";
 
 const Login = ({ setIsLoggedIn }) => {
   const [loading, setLoading] = useState(false);
@@ -18,41 +18,44 @@ const Login = ({ setIsLoggedIn }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.email || !formData.password) {
       return message.error("All fields are required!");
     }
 
     setLoading(true);
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/auth/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const result = await login(formData);
 
-      const result = await res.json();
-      const role = result.user.role;
-
-
-      if (role === "admin") navigate("/home", { replace: true });
-      else if (role === "officer") navigate("/officer-dashboard", { replace: true });
-      else if (role === "reader") navigate("/reader-dashboard", { replace: true });
-
-      if (!res.ok) {
-        message.error(result.message || "Login failed");
-        return;
-      }
+      const role = result.user?.role;
 
       message.success("Login successful!");
 
+      switch (role) {
+        case "admin":
+          navigate("/home", { replace: true });
+          break;
+
+        case "officer":
+          navigate("/officer-dashboard", { replace: true });
+          break;
+
+        case "reader":
+          navigate("/reader-dashboard", { replace: true });
+          break;
+
+        default:
+          navigate("/", { replace: true });
+      }
 
       setIsLoggedIn(true);
-
-
-
-    } catch (err) {
-      message.error(err.message || "Login error");
+    } catch (error) {
+      message.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed"
+      );
     } finally {
       setLoading(false);
     }

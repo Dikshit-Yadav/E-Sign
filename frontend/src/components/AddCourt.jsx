@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Button, message } from "antd";
+import { createCourt } from "../services/courtServices";
 
 function AddCourt({ open, onClose, onCourtAdded }) {
   const [form] = Form.useForm();
@@ -8,21 +9,19 @@ function AddCourt({ open, onClose, onCourtAdded }) {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Failed to add court");
-
-      message.success("Court added successfully!");
+      const data = await createCourt(values);
+      message.success(
+        "Court added successfully!"
+      );
       onCourtAdded(data.court);
       form.resetFields();
       onClose();
-    } catch (err) {
-      message.error(err.message || "Error adding court");
+    } catch (error) {
+      message.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error adding court"
+      );
     } finally {
       setLoading(false);
     }

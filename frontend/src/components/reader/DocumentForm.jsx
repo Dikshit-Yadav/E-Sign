@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Form, Input, Button, Typography, message } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
-import Cookies from "js-cookie";
+import { createDocument } from "../../services/documentServices";
 
 const { Text } = Typography;
 
@@ -10,38 +9,47 @@ const DocumentForm = ({ modelOpen, setModalOpen, fetchDocs }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const handleSubmit = async (values) => {
-     const userId = JSON.parse(sessionStorage.getItem("user"));
-    if (!userId) {
-      message.error("Missing user. Please login again.");
-      return;
-    }
+  const user = JSON.parse(
+    sessionStorage.getItem("user")
+  );
 
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("description", values.description || "");
-    formData.append("createdBy", userId);
+  const userId = user?._id;
 
-    try {
-      setSubmitLoading(true);
-      const res = await fetch(`${import.meta.env.VITE_API}/documents`, {
-        method: "POST",
-        body: formData,
-      });
+  if (!userId) {
+    message.error(
+      "Missing user. Please login again."
+    );
+    return;
+  }
 
-      if(res.ok){
-      message.success("Document request created!");
-      fetchDocs();
-      setModalOpen(false);
-      form.resetFields();
-      //  window.location.reload();
-      }
-    } catch (err) {
-      console.error(err);
-      message.error(err.message || "Network error");
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
+  try {
+    setSubmitLoading(true);
+
+    await createDocument({
+      title: values.title,
+      description: values.description,
+      createdBy: userId,
+    });
+
+    message.success(
+      "Document request created!"
+    );
+
+    fetchDocs();
+
+    setModalOpen(false);
+
+    form.resetFields();
+  } catch (error) {
+    message.error(
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to create document"
+    );
+  } finally {
+    setSubmitLoading(false);
+  }
+};
 
   return (
     <Modal

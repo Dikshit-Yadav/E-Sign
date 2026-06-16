@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Layout, Avatar, Dropdown, Typography, Space, message } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { getUserById } from "../services/userService";
+import { logoutUser } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
@@ -10,48 +11,39 @@ const { Text } = Typography;
 function Header({ setIsLoggedIn }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
- const userId = JSON.parse(sessionStorage.getItem("user"));
-//  console.log(userId)
+  const userId = JSON.parse(sessionStorage.getItem("user"));
+  //  console.log(userId)
   useEffect(() => {
+    const fetchUser = async () => {
+      if (!userId) return;
+      try {
+        const data = await getUserById(userId);
 
-  if (userId) {
-    fetch(`${import.meta.env.VITE_API}/users/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setUserName(data?.name || "User"))
-      .catch((err) => {
-        console.error("Failed to fetch user:", err);
+        setUserName(data?.name || "User");
+      } catch (error) {
+        console.error(error);
         setUserName("User");
-      });
-  }
-}, [userId]);
+      }
+    };
+    fetchUser();
+  }, [userId]);
 
   const handleLogout = useCallback(async () => {
-  try {
-    // const res = await fetch(`${import.meta.env.VITE_API}/auth/logout`, { 
-    const res = await fetch(`${import.meta.env.VITE_API}/auth/logout`, { 
-      method: "POST",
-      credentials: "include",
-    });
+    try {
+      await logoutUser();
 
-    if (res.ok) {
+      sessionStorage.removeItem("user");
+
       setIsLoggedIn(false);
-      // Cookies.remove("token");
-      // Cookies.remove("role");
-      // Cookies.remove("userId");
-      sessionStorage.removeItem("userId");
+
       message.success("Logged out successfully");
-      window.location.href = "/auth/login"; 
-    } else {
-      message.error("Failed to log out");
+
+      navigate("/auth/login", { replace: true });
+
+    } catch (error) {
+      message.error("Server error while logging out");
     }
-  } catch (err) {
-    console.error("Logout error:", err);
-    message.error("Server error while logging out");
-  }
-}, [navigate, setIsLoggedIn]);
+  }, [setIsLoggedIn, navigate]);
 
 
   const menuItems = [
@@ -77,7 +69,7 @@ function Header({ setIsLoggedIn }) {
         alignItems: "center",
         padding: "0 24px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        zIndex: 1001, 
+        zIndex: 1001,
       }}
     >
       <Text strong style={{ fontSize: 20 }}>

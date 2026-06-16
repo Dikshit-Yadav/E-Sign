@@ -10,6 +10,11 @@ import UserTable from "../components/home/UserTable";
 import DocumentTable from "../components/home/DocumentTable";
 import CourtModals from "../components/home/CourtModals";
 import AddUserCourt from "../components/home/AddUserCourt";
+import {
+  getCourts,
+  getCourtById,
+  deleteCourt,
+} from "../services/courtServices";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -32,23 +37,19 @@ const Home = ({ setIsLoggedIn }) => {
 
   const handleCourtDetails = async (court) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts/${court._id}`);
-      if (!res.ok) throw new Error("Failed to fetch court details");
-      const data = await res.json();
-      // console.log(data)
+      const data = await getCourtById(court._id);
+
       setSelectedCourtDetails(data);
       setDetailsModalOpen(true);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const fetchCourts = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts`);
+      const data = await getCourts();
 
-      const data = await res.json();
-      // console.log(data)
       setCourts(
         data.map((c, index) => ({
           key: index + 1,
@@ -59,23 +60,18 @@ const Home = ({ setIsLoggedIn }) => {
           documents: Number(c.documentsCount) || 0,
         }))
       );
-    } catch (err) {
-      console.error("Error fetching courts:", err);
+    } catch (error) {
+      console.error("Error fetching courts:", error);
     }
   };
 
   const handleRemoveCourt = async (court) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/admin/courts/${court._id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        fetchCourts();
-      } else {
-        console.error("Failed to remove court");
-      }
-    } catch (err) {
-      console.error("Error removing court:", err);
+      await deleteCourt(court._id);
+
+      fetchCourts();
+    } catch (error) {
+      console.error("Error removing court:", error);
     }
   };
 

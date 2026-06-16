@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Table, Card, Spin, Descriptions, Layout } from "antd";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
+import {getCourtDetails} from "../services/courtServices.js";
 
 const { Content } = Layout;
 
@@ -12,12 +13,21 @@ function CourtDetails({ setIsLoggedIn }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`${import.meta.env.VITE_API}/admin/courts/${id}/details`)
-      .then((res) => res.json())
-      .then((data) => setCourt(data.court))
-      .catch((err) => console.error("Error fetching court:", err))
-      .finally(() => setLoading(false));
+    const fetchCourt = async () => {
+      try {
+        setLoading(true);
+
+        const data = await getCourtDetails(id);
+
+        setCourt(data.court);
+      } catch (error) {
+        console.error("Error fetching court:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourt();
   }, [id]);
 
   const userColumns = [

@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Tag,
-  Dropdown,
-  Modal,
-  Upload,
-  Image,
-  message,
+import {Table,Button,Tag,Dropdown,Modal,Upload,Image,message,
 } from "antd";
 import { DownOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import {getOfficerDocuments,getSignature,uploadSignature,
+} from "../../services/officerService";
+import {rejectDocument,signDocument,
+} from "../../services/documentServices";
+
 
 const DocumentTable = () => {
   const [docs, setDocs] = useState([]);
@@ -26,82 +23,103 @@ const DocumentTable = () => {
   }, []);
 
   const fetchDocs = async () => {
+    setLoading(true);
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/officer/documents`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      // console.log("res", res);
-      const data = await res.json();
-      // console.log("data", data)
+      const data =
+        await getOfficerDocuments();
+
       setDocs(data);
     } catch {
-      message.error("Failed to load documents");
+      message.error(
+        "Failed to load documents"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSignaturePreview = async () => {
+  const fetchSignaturePreview =
+    async () => {
+      try {
+        const data =
+          await getSignature();
+
+        if (data.signature) {
+          setPreview(
+            `${import.meta.env.VITE_API}${data.signature}`
+          );
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+  const handleReject = async (id) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/officer/get-signature`, {
-        credentials: "include"
-      });
-      const data = await res.json();
-      if (data.signature) setPreview(`${import.meta.env.VITE_API}${data.signature}`);
-    } catch (err) {
-      console.log(err.message.data)
+      await rejectDocument(id);
+
+      message.success(
+        "Document rejected"
+      );
+
+      fetchDocs();
+    } catch {
+      message.error(
+        "Failed to reject document"
+      );
     }
   };
 
-  const handleReject = async (id) => {
-    // console.log(id)
-    await fetch(`${import.meta.env.VITE_API}/documents/${id}/reject`, { method: "PUT" });
-    message.success("Document rejected");
-    fetchDocs();
-  };
-
-  const handleUploadSignature = async ({ file }) => {
-    const formData = new FormData();
-    formData.append("signature", file);
+  const handleUploadSignature = async ({
+    file,
+  }) => {
     setUploading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/officer/upload-signature`, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      const result = await res.json();
-      if(!res.ok){
-        throw new Error(result.message || "Upload failed");
-      }
-      setPreview(`${import.meta.env.VITE_API}${result.signature}`);
-      message.success("Signature uploaded successfully!");
-    } catch (err) {
-      message.error(err.message);
+      const result =
+        await uploadSignature(file);
+
+      setPreview(
+        `${import.meta.env.VITE_API}${result.signature}`
+      );
+
+      message.success(
+        "Signature uploaded successfully!"
+      );
+    } catch (error) {
+      message.error(
+        error.response?.data?.message ||
+        "Upload failed"
+      );
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDispatchSignature = async () => {
-    if (!selectedDoc) return;
+  const handleDispatchSignature =
+    async () => {
+      if (!selectedDoc) return;
 
-    await fetch(`${import.meta.env.VITE_API}/documents/${selectedDoc._id}/sign`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ signature: preview }),
-      credentials: "include",
-    });
+      try {
+        await signDocument(
+          selectedDoc._id,
+          preview
+        );
 
-    message.success("Document signed successfully");
-    setModalVisible(false);
-    fetchDocs();
-  };
+        message.success(
+          "Document signed successfully"
+        );
+
+        setModalVisible(false);
+
+        fetchDocs();
+      } catch {
+        message.error(
+          "Failed to sign document"
+        );
+      }
+    };
 
   const handlePreview = (record) => {
     window.open(`${import.meta.env.VITE_API}/documents/${record._id}/preview`, "_blank");

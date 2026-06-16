@@ -4,69 +4,54 @@ import { Table, Dropdown, Menu, Button, message, Form, Tag, Select, Popconfirm, 
 import { DownOutlined } from "@ant-design/icons";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import QRCode from "qrcode";
-import Cookies from "js-cookie";
-
+import {
+  deleteDocument, saveDocumentTemplate, getDocumentOfficers, sendForSignature,
+} from "../../services/documentServices";
 const { Option } = Select;
 
 const DocumentTable = ({ docs, refreshDocs }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [form] = Form.useForm();
-  // const [docs, setDocs] = useState([]);
   const [docTemplates, setDocTemplates] = useState({});
   const [officers, setOfficers] = useState([]);
   const [officerDropdown, setOfficerDropdown] = useState(null);
   const [loadingOfficers, setLoadingOfficers] = useState(false);
-  // const [sentForSignature, setSentForSignature] = useState({});
-  // const fetchDocs = async () => {
-  //   try {
-  //     const userId = Cookies.get("userId");
-  //     const res = await fetch(`https://e-sign1.onrender.com/documents?userId=${userId}`);
-  //     const data = await res.json();
-  //     setDocs(data);
-
-  //     const templatesMap = {};
-  //     data.forEach((doc) => {
-  //       if (doc.templates?.length > 0) {
-  //         templatesMap[doc._id] = doc.templates;
-  //       }
-  //     });
-  //     setDocTemplates(templatesMap);
-  //   } catch (err) {
-  //     console.error("Error fetching docs:", err);
-  //     message.error("Failed to fetch documents");
-  //   }
-  // };
 
   const removeDocument = async (docId) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API}/documents/${docId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      message.success("Document removed!");
+      await deleteDocument(docId);
+
+      message.success(
+        "Document removed!"
+      );
+
       refreshDocs();
-    } catch (err) {
-      message.error("Failed to remove document");
+    } catch {
+      message.error(
+        "Failed to remove document"
+      );
     }
   };
 
   const fetchOfficers = async (docId) => {
     try {
       setLoadingOfficers(true);
-      const res = await fetch(`${import.meta.env.VITE_API}/documents/${docId}/officers`);
-      const data = await res.json();
+
+      const data =
+        await getDocumentOfficers(docId);
+
       setOfficers(data);
+
       setOfficerDropdown(docId);
-    } catch (err) {
-      console.error("Error fetching officers:", err);
-      message.error("Failed to load officers");
+    } catch {
+      message.error(
+        "Failed to load officers"
+      );
     } finally {
       setLoadingOfficers(false);
     }
   };
-
-  // useEffect(() => {
-  //   fetchDocs();
-  // }, []);
 
   const handleTitleClick = (record) => {
     setSelectedDoc(record);
@@ -106,12 +91,17 @@ const DocumentTable = ({ docs, refreshDocs }) => {
         }
       );
 
-      const updatedDoc = await res.json();
-      if (!res.ok) throw new Error(updatedDoc.message);
+      await saveDocumentTemplate(
+        selectedDoc._id,
+        templates
+      );
 
-     refreshDocs();
+      refreshDocs();
 
-      message.success("Template(s) saved to MongoDB!");
+      message.success(
+        "Template(s) saved successfully!"
+      );
+
     } catch (err) {
       console.error("Error saving template:", err);
       message.error("Failed to save to DB");
@@ -315,21 +305,22 @@ const DocumentTable = ({ docs, refreshDocs }) => {
                     style={{ width: 200 }}
                     onChange={async (officerId) => {
                       try {
-                        const res = await fetch(
-                          `${import.meta.env.VITE_API}/documents/${record._id}/send`,
-                          {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ officerId }),
-                          }
+                        await sendForSignature(
+                          record._id,
+                          officerId
                         );
-                        if (!res.ok) throw new Error("Failed to send");
-                        message.success("Document sent for signature!");
+
+                        message.success(
+                          "Document sent for signature!"
+                        );
 
                         refreshDocs();
+
                         setOfficerDropdown(null);
                       } catch {
-                        message.error("Failed to send document");
+                        message.error(
+                          "Failed to send document"
+                        );
                       }
                     }}
                   >
